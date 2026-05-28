@@ -2248,6 +2248,16 @@
                 background: linear-gradient(180deg, rgba(139, 26, 26, 0.5) 0%, rgba(139, 26, 26, 0.7) 100%);
             }
 
+            
+            /* Evitar zoom nativo del navegador en móvil */
+            #canvas-container {
+                touch-action: none;
+            }
+            .node {
+                touch-action: none;
+            }
+
+
             @media (max-width: 600px) {
                 #side-panel {
                     width: 100%;
@@ -3025,6 +3035,15 @@ el.innerHTML = `
                     if (e.target.tagName === 'BUTTON' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('port')) return;
                     selectNode(id);
                 });
+
+                
+                // Tap táctil para seleccionar nodo
+                el.addEventListener('touchend', (e) => {
+                    if (e.changedTouches.length === 1 && !touchDraggingNodeId) {
+                        selectNode(id);
+                    }
+                }, { passive: true });
+
             }
 
                 ;
@@ -4381,6 +4400,107 @@ return `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
                         e.preventDefault(); openSearch();
                     }
                 });
+                
+                // ── TOUCH SUPPORT ──
+                let touchStartX = 0, touchStartY = 0;
+                let lastTouchDist = 0;
+                let touchDraggingNodeId = null;
+                let touchDragStartX = 0, touchDragStartY = 0;
+                let touchNodeStartX = 0, touchNodeStartY = 0;
+
+                container.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        const target = touch.target;
+
+                        // ¿Es un nodo (no botón, no textarea, no port)?
+                        const nodeEl = target.closest('.node');
+                        if (nodeEl && !target.closest('button') && !target.closest('textarea') && !target.closest('.port')) {
+                            const id = nodeEl.dataset.id;
+                            const level = currentLevel();
+                            const nodeData = level.nodes[id];
+                            if (nodeData) {
+                                touchDraggingNodeId = id;
+                                const worldPos = Canvas.screenToWorld(touch.clientX, touch.clientY);
+                                touchDragStartX = worldPos.x - (nodeData.x || 0);
+                                touchDragStartY = worldPos.y - (nodeData.y || 0);
+                                selectNode(id);
+                                e.preventDefault();
+                                return;
+                            }
+                        }
+
+                        // Pan del canvas
+                        touchStartX = touch.clientX - state.transform.x;
+                        touchStartY = touch.clientY - state.transform.y;
+                        state.panningCanvas = true;
+                        e.preventDefault();
+
+                    } else if (e.touches.length === 2) {
+                        // Pinch zoom — guardar distancia inicial
+                        const dx = e.touches[0].clientX - e.touches[1].clientX;
+                        const dy = e.touches[0].clientY - e.touches[1].clientY;
+                        lastTouchDist = Math.sqrt(dx * dx + dy * dy);
+                        state.panningCanvas = false;
+                        touchDraggingNodeId = null;
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                container.addEventListener('touchmove', (e) => {
+                    if (e.touches.length === 1) {
+                        const touch = e.touches[0];
+
+                        if (touchDraggingNodeId) {
+                            // Mover nodo
+                            const level = currentLevel();
+                            const nodeData = level.nodes[touchDraggingNodeId];
+                            if (nodeData) {
+                                const worldPos = Canvas.screenToWorld(touch.clientX, touch.clientY);
+                                nodeData.x = worldPos.x - touchDragStartX;
+                                nodeData.y = worldPos.y - touchDragStartY;
+                                const el = dom.canvasWorld.querySelector(`[data-id="${touchDraggingNodeId}"]`);
+                                if (el) { el.style.left = nodeData.x + 'px'; el.style.top = nodeData.y + 'px'; }
+                                renderConnections(); updateMinimap();
+                            }
+                            e.preventDefault();
+                            return;
+                        }
+
+                        if (state.panningCanvas) {
+                            state.transform.x = touch.clientX - touchStartX;
+                            state.transform.y = touch.clientY - touchStartY;
+                            Canvas.apply();
+                            e.preventDefault();
+                        }
+
+                    } else if (e.touches.length === 2) {
+                        // Pinch zoom
+                        const dx = e.touches[0].clientX - e.touches[1].clientX;
+                        const dy = e.touches[0].clientY - e.touches[1].clientY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (lastTouchDist > 0) {
+                            const ratio = dist / lastTouchDist;
+                            const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                            const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                            const newScale = Math.min(3, Math.max(0.15, state.transform.scale * ratio));
+                            const r = newScale / state.transform.scale;
+                            state.transform.x = cx - r * (cx - state.transform.x);
+                            state.transform.y = cy - r * (cy - state.transform.y);
+                            state.transform.scale = newScale;
+                            Canvas.apply();
+                        }
+                        lastTouchDist = dist;
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                container.addEventListener('touchend', (e) => {
+                    touchDraggingNodeId = null;
+                    state.panningCanvas = false;
+                    lastTouchDist = 0;
+                });
+
             }
 
                 ;
