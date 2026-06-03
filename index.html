@@ -2570,6 +2570,37 @@
 
 
 
+      /* ── IMÁGENES FLOTANTES ── */
+      .canvas-float-img {
+        position: absolute;
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+        border: 1px solid transparent;
+        border-radius: 3px;
+        transition: border-color 0.15s;
+      }
+
+      .canvas-float-img:active {
+        cursor: grabbing;
+      }
+
+      .canvas-float-img.selected {
+        border-color: var(--gold);
+        box-shadow: 0 0 12px rgba(201, 160, 32, 0.5);
+      }
+
+      .canvas-float-img img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 2px;
+        pointer-events: none;
+      }
+
+
+
       @media (max-width: 600px) {
         #side-panel {
           width: 100%;
@@ -2644,6 +2675,7 @@
       <div id="ctx-canvas-options">
         <div class="ctx-item" id="ctx-add-node">✦ Añadir Nodo aquí</div>
         <div class="ctx-item" id="ctx-add-svg-icon">🎨 Añadir Icono SVG</div>
+        <div class="ctx-item" id="ctx-add-float-img">🖼 Añadir Imagen Flotante</div>
         <div class="ctx-item" id="ctx-paste">⎘ Pegar</div>
         <div class="ctx-sep"></div>
         <div class="ctx-item" id="ctx-fit">⊞ Ajustar vista</div>
@@ -2655,7 +2687,16 @@
         <div class="ctx-sep"></div>
         <div class="ctx-item danger" id="ctx-svg-delete">✕ Eliminar icono</div>
       </div>
+      <div id="ctx-float-img-options" style="display:none">
+        <div class="ctx-item" id="ctx-fimg-front">⬆ Traer al frente</div>
+        <div class="ctx-item" id="ctx-fimg-back">⬇ Enviar al fondo</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item danger" id="ctx-fimg-delete">✕ Eliminar imagen</div>
+      </div>
     </div>
+
+
+
 
     <div class="modal-overlay" id="connection-modal">
       <div class="modal-box">
@@ -3645,6 +3686,9 @@
           // Renderizar iconos SVG del nivel
           SvgIcons.renderAllSvgIcons();
 
+          FloatImages.renderAll();
+
+
         }
 
           ;
@@ -4169,13 +4213,14 @@
           secType.appendChild(typeBadgeInput); dom.panelContent.appendChild(secType);
 
           const secIcon = createPanelSection('Icono');
-          const icons = ['📜', '🗺️', '⚔️', '🏰', '🌲', '🐉', '💀', '🔮', '👑', '⚗️', '🌊', '🔥', '❄️', '⚡', '🌙', '☀️', '🌿', '🦅', '🐺', '💎', '🗡️', '🛡️', '📖', '🏔️', '🌋', '🏛️', '🕯️', '🌹', '🦁', '🐍', '🦋', '🌺', '🎭', '🔑', '⚓', '🌠', '🌑', '🌕', '🧿', '🪄'];
+          const icons = ['', '📜', '🗺️', '⚔️', '🏰', '🌲', '🐉', '💀', '🔮', '👑', '⚗️', '🌊', '🔥', '❄️', '⚡', '🌙', '☀️', '🌿', '🦅', '🐺', '💎', '🗡️', '🛡️', '📖', '🏔️', '🌋', '🏛️', '🕯️', '🌹', '🦁', '🐍', '🦋', '🌺', '🎭', '🔑', '⚓', '🌠', '🌑', '🌕', '🧿', '🪄'];
           const iconGrid = document.createElement('div'); iconGrid.className = 'panel-icon-grid';
 
           icons.forEach(icon => {
             const opt = document.createElement('div');
             opt.className = 'icon-option' + (nodeData.icon === icon ? ' active' : '');
-            opt.textContent = icon; opt.title = icon;
+            opt.textContent = icon || '∅';  // muestra ∅ como indicador visual de "vacío"
+            opt.title = icon || 'Sin icono';
 
             opt.addEventListener('click', () => {
               iconGrid.querySelectorAll('.icon-option').forEach(o => o.classList.remove('active'));
@@ -4557,17 +4602,40 @@
 
           ;
 
+
+        const stripImages = (node) => {
+          const copy = { ...node };
+          // Eliminar imágenes pesadas del autoguardado
+          if (copy.detailImages) copy.detailImages = [];
+          if (copy.floatImages) {
+            copy.floatImages = {};
+            Object.entries(node.floatImages).forEach(([k, v]) => {
+              copy.floatImages[k] = { ...v, src: '' }; // guardar posición pero no imagen
+            });
+          }
+          if (copy.nodes) {
+            copy.nodes = {};
+            Object.entries(node.nodes).forEach(([k, v]) => {
+              copy.nodes[k] = stripImages(v);
+            });
+          }
+          return copy;
+        };
+
+
         // ── GUARDAR / CARGAR ──
         const autoSave = () => {
           try {
-            localStorage.setItem('codex-mundi-autosave', JSON.stringify({
-              root: state.root, idCounter: state.idCounter, timeline: Timeline.serialize()
-            }));
-            notify('💾 Guardado automático');
-          }
-
-          catch (e) {
-            notify('⚠ Error en autoguardado (datos muy grandes)');
+            // Guardar sin imágenes para no superar el límite de localStorage
+            const dataToSave = {
+              idCounter: state.idCounter,
+              timeline: Timeline.serialize(),
+              root: stripImages(state.root),
+            };
+            localStorage.setItem('codex-mundi-autosave', JSON.stringify(dataToSave));
+          } catch (e) {
+            // Si aún así falla, intentar sin nada de imágenes
+            console.warn('AutoSave falló:', e.message);
           }
         }
 
@@ -4576,19 +4644,24 @@
         const saveData = () => {
           const data = JSON.stringify({
             root: state.root, idCounter: state.idCounter, timeline: Timeline.serialize()
+          }, null, 2);
+
+          // Guardar en localStorage SIN imágenes (para no superar el límite)
+          try {
+            localStorage.setItem('codex-mundi-autosave', JSON.stringify({
+              root: stripImages(state.root),
+              idCounter: state.idCounter,
+              timeline: Timeline.serialize(),
+            }));
+          } catch (e) {
+            console.warn('localStorage lleno, se omite el guardado local:', e.message);
           }
 
-            , null, 2);
-
-          localStorage.setItem('codex-mundi-autosave', JSON.stringify({
-            root: state.root, idCounter: state.idCounter, timeline: Timeline.serialize()
-          }));
-
-          const blob = new Blob([data], {
-            type: 'application/json'
-          });
+          // Descargar JSON completo CON imágenes
+          const blob = new Blob([data], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
-          const a = document.createElement('a'); a.href = url; a.download = 'codex-mundi.json';
+          const a = document.createElement('a');
+          a.href = url; a.download = 'codex-mundi.json';
           a.click(); URL.revokeObjectURL(url);
           notify('⬇ Codex guardado');
         }
@@ -4652,6 +4725,21 @@
             }
           });
 
+
+          container.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            // Si el click fue sobre una imagen flotante, no hacer nada (ella gestiona su propio menú)
+            if (e.target.closest('.canvas-float-img')) return;
+            state.contextMenuPos = Canvas.screenToWorld(e.clientX, e.clientY);
+            const menu = dom.contextMenu;
+            menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+            document.getElementById('ctx-canvas-options').style.display = 'block';
+            document.getElementById('ctx-svg-options').style.display = 'none';
+            document.getElementById('ctx-float-img-options').style.display = 'none';
+            menu.classList.add('open');
+          });
+
+
           document.addEventListener('mousemove', (e) => {
             if (state.dragging) {
               const worldPos = Canvas.screenToWorld(e.clientX, e.clientY);
@@ -4688,7 +4776,25 @@
                   if (el) { el.style.left = iconData.x + 'px'; el.style.top = iconData.y + 'px'; }
                   renderConnections();
                 }
+
+
+
               }
+              // Arrastre de imagen flotante
+              if (state.dragging && state.dragging.isFloatImg) {
+                const level = currentLevel();
+                if (!level.floatImages) return;
+                const data = level.floatImages[state.dragging.id];
+                if (data) {
+                  const wp = Canvas.screenToWorld(e.clientX, e.clientY);
+                  data.x = wp.x - state.dragging.startX;
+                  data.y = wp.y - state.dragging.startY;
+                  const el = dom.canvasWorld.querySelector(`[data-fi-id="${state.dragging.id}"]`);
+                  if (el) { el.style.left = data.x + 'px'; el.style.top = data.y + 'px'; }
+                }
+              }
+
+
 
             }
 
@@ -4730,15 +4836,20 @@
           });
 
 
+
           container.addEventListener('contextmenu', (e) => {
             e.preventDefault();
+            // Si el click fue sobre una imagen flotante, no hacer nada (ella gestiona su propio menú)
+            if (e.target.closest('.canvas-float-img')) return;
             state.contextMenuPos = Canvas.screenToWorld(e.clientX, e.clientY);
             const menu = dom.contextMenu;
             menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
             document.getElementById('ctx-canvas-options').style.display = 'block';
             document.getElementById('ctx-svg-options').style.display = 'none';
+            document.getElementById('ctx-float-img-options').style.display = 'none';
             menu.classList.add('open');
           });
+
 
 
           document.addEventListener('click', () => {
@@ -5083,6 +5194,7 @@
 
 
           DrawCanvas.initEvents();
+          FloatImages.initEvents();
 
         }
 
@@ -5437,6 +5549,7 @@
               initCanvasEvents();
 
               DrawCanvas.initEvents();
+              FloatImages.initEvents();
 
               initButtonEvents();
               Timeline.initEvents();
@@ -5466,6 +5579,7 @@
           initCanvasEvents();
 
           DrawCanvas.initEvents();
+          FloatImages.initEvents();
 
           initButtonEvents();
           Timeline.initEvents();
@@ -6987,6 +7101,151 @@ _$ {
         })();
 
 
+        // ── IMÁGENES FLOTANTES ──────────────────────────────────────────
+        const FloatImages = (() => {
+          let selectedId = null;
+
+          const genFiId = () => `fi_${++state.idCounter}_${Date.now().toString(36)}`;
+
+          // z-index: 'back'=2, 'front'=20 (nodos están en z-index:10)
+          const Z = { back: 2, front: 20 };
+
+          const create = (src, x, y) => {
+            const level = currentLevel();
+            if (!level.floatImages) level.floatImages = {};
+            const id = genFiId();
+            level.floatImages[id] = { id, src, x, y, w: 200, h: 150, layer: 'front' };
+            renderOne(level.floatImages[id]);
+            autoSave();
+            notify('🖼 Imagen añadida');
+          };
+
+          const renderOne = (data) => {
+            const el = document.createElement('div');
+            el.className = 'canvas-float-img';
+            el.dataset.fiId = data.id;
+            el.style.left = data.x + 'px';
+            el.style.top = data.y + 'px';
+            el.style.width = data.w + 'px';
+            el.style.height = data.h + 'px';
+            el.style.zIndex = Z[data.layer] || Z.front;
+            el.style.resize = 'both';
+            el.style.overflow = 'hidden';
+            el.style.minWidth = '40px';
+            el.style.minHeight = '40px';
+
+            const img = document.createElement('img');
+            img.src = data.src;
+            el.appendChild(img);
+
+            // Drag
+            el.addEventListener('mousedown', (e) => {
+              if (e.button !== 0) return;
+              // Ignorar zona resize (esquina inf-der)
+              const rect = el.getBoundingClientRect();
+              if (e.clientX >= rect.right - 16 && e.clientY >= rect.bottom - 16) return;
+              e.preventDefault(); e.stopPropagation();
+              select(data.id);
+              const wp = Canvas.screenToWorld(e.clientX, e.clientY);
+              state.dragging = {
+                id: data.id, isFloatImg: true,
+                startX: wp.x - data.x,
+                startY: wp.y - data.y,
+              };
+            });
+
+            // Guardar tamaño al soltar resize
+            const ro = new ResizeObserver(() => {
+              data.w = el.offsetWidth;
+              data.h = el.offsetHeight;
+            });
+            ro.observe(el);
+
+            // Menú contextual
+            el.addEventListener('contextmenu', (e) => {
+              e.preventDefault(); e.stopPropagation();
+              select(data.id);
+              state.selectedFloatImgId = data.id;
+              const menu = dom.contextMenu;
+              menu.style.left = e.clientX + 'px';
+              menu.style.top = e.clientY + 'px';
+              document.getElementById('ctx-canvas-options').style.display = 'none';
+              document.getElementById('ctx-svg-options').style.display = 'none';
+              document.getElementById('ctx-float-img-options').style.display = 'block';
+              menu.classList.add('open');
+            });
+
+
+            dom.canvasWorld.appendChild(el);
+          };
+
+          const renderAll = () => {
+            dom.canvasWorld.querySelectorAll('.canvas-float-img').forEach(el => el.remove());
+            const level = currentLevel();
+            if (!level.floatImages) return;
+            Object.values(level.floatImages).forEach(renderOne);
+          };
+
+          const select = (id) => {
+            dom.canvasWorld.querySelectorAll('.canvas-float-img.selected')
+              .forEach(el => el.classList.remove('selected'));
+            selectedId = id;
+            state.selectedFloatImgId = id;
+            const el = dom.canvasWorld.querySelector(`[data-fi-id="${id}"]`);
+            if (el) el.classList.add('selected');
+          };
+
+          const setLayer = (id, layer) => {
+            const level = currentLevel();
+            if (!level.floatImages || !level.floatImages[id]) return;
+            level.floatImages[id].layer = layer;
+            const el = dom.canvasWorld.querySelector(`[data-fi-id="${id}"]`);
+            if (el) el.style.zIndex = Z[layer];
+            autoSave();
+            notify(layer === 'front' ? '⬆ Imagen al frente' : '⬇ Imagen al fondo');
+          };
+
+          const remove = (id) => {
+            const level = currentLevel();
+            if (level.floatImages) delete level.floatImages[id];
+            const el = dom.canvasWorld.querySelector(`[data-fi-id="${id}"]`);
+            if (el) el.remove();
+            state.selectedFloatImgId = null;
+            autoSave();
+            notify('✕ Imagen eliminada');
+          };
+
+          const initEvents = () => {
+            // Botón menú contextual canvas
+            document.getElementById('ctx-add-float-img').addEventListener('click', () => {
+              document.getElementById('float-img-input').click();
+            });
+
+            document.getElementById('float-img-input').addEventListener('change', (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                create(ev.target.result, state.contextMenuPos.x - 100, state.contextMenuPos.y - 75);
+              };
+              reader.readAsDataURL(file);
+              e.target.value = '';
+            });
+
+            document.getElementById('ctx-fimg-front').addEventListener('click', () => {
+              if (state.selectedFloatImgId) setLayer(state.selectedFloatImgId, 'front');
+            });
+            document.getElementById('ctx-fimg-back').addEventListener('click', () => {
+              if (state.selectedFloatImgId) setLayer(state.selectedFloatImgId, 'back');
+            });
+            document.getElementById('ctx-fimg-delete').addEventListener('click', () => {
+              if (state.selectedFloatImgId) remove(state.selectedFloatImgId);
+            });
+          };
+
+          return { renderAll, initEvents };
+        })();
+
 
         return {
           init
@@ -7157,6 +7416,10 @@ _$ {
       <div class="draw-status" id="draw-status">Herramienta: Lápiz · Grosor: 3px · Click y arrastra para dibujar</div>
     </div>
   </div>
+
+
+
+  <input type="file" id="float-img-input" accept="image/*" style="display:none">
 
 
   </html>
