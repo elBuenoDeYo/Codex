@@ -25,6 +25,8 @@
         --node-w: 220px;
         --node-min-h: 120px;
         --canvas-bg: #1a1208;
+        --paper-texture: url('/images/paper-background-fantasy.webp');
+        --mask-node: url('/images/frame_square_0001.webp');
       }
 
       * {
@@ -115,57 +117,60 @@
         cursor: grabbing;
       }
 
-      .node.selected .node-body {
-        box-shadow: 0 0 0 2px var(--gold), 0 0 20px rgba(201, 160, 32, 0.6), inset 0 0 10px rgba(201, 160, 32, 0.1);
-      }
+      
+.node.selected .node-body {
+  box-shadow: 0 0 0 0 transparent,
+              0 0 24px rgba(201, 160, 32, 0.55),
+              0 6px 20px rgba(0, 0, 0, 0.5);
+  filter: brightness(1.06);
+}
 
-      .node.connecting-source .node-body {
-        box-shadow: 0 0 0 3px var(--arcane-blue), 0 0 25px rgba(26, 58, 92, 0.8);
-      }
+.node.connecting-source .node-body {
+  box-shadow: 0 0 24px rgba(26, 58, 92, 0.7);
+  filter: brightness(1.08);
+}
 
-      .node-body {
-        background: linear-gradient(135deg, #f9f0d8 0%, #ede0b8 30%, #e0cc98 60%, #d4bc80 100%);
-        border: 2px solid var(--parchment-deep);
-        border-radius: 4px;
-        padding: 10px;
-        position: relative;
-        box-shadow: 2px 2px 0 var(--parchment-deep), 4px 4px 0 rgba(100, 60, 20, 0.3),
-          0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4),
-          inset 0 -1px 0 rgba(100, 60, 20, 0.2);
-        overflow: hidden;
-        resize: both;
-        overflow: hidden;
-        min-width: 160px;
-        min-height: 80px;
-        max-width: 600px;
-      }
 
-      .node-body::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image: repeating-linear-gradient(0deg, transparent, transparent 18px,
-            rgba(160, 120, 70, 0.08) 18px, rgba(160, 120, 70, 0.08) 19px);
-        pointer-events: none;
-        border-radius: 3px;
-      }
+      
+.node-body {
+  /* Textura de papel como fondo */
+  background: var(--paper-texture), linear-gradient(135deg, #f9f0d8 0%, #ede0b8 50%, #d4bc80 100%);
+  background-size: cover, cover;
+  background-blend-mode: multiply;
 
-      .node-body::after {
-        content: '';
-        position: absolute;
-        inset: 3px;
-        border: 1px solid rgba(160, 120, 70, 0.3);
-        border-radius: 2px;
-        pointer-events: none;
-      }
+  /* Máscara orgánica — recorta los bordes según mask1.png */
+  -webkit-mask-image: var(--mask-node);
+  mask-image: var(--mask-node);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 
-      .node-corner {
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        pointer-events: none;
-        z-index: 2;
-      }
+  /* Sin bordes ni sombras decorativas — minimalista */
+  border: none;
+  border-radius: 0;
+  padding: 14px 16px;
+  position: relative;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  resize: both;
+  min-width: 160px;
+  min-height: 80px;
+  max-width: 600px;
+}
+
+/* Eliminar las líneas de pauta y el borde interior */
+.node-body::before,
+.node-body::after {
+  display: none;
+}
+
+
+      
+.node-corner {
+  display: none;
+}
+
 
       .node-corner.tl {
         top: 2px;
@@ -195,16 +200,19 @@
         height: 16px;
       }
 
-      .node-header {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 6px;
-        padding-bottom: 5px;
-        border-bottom: 1px solid var(--parchment-deep);
-        position: relative;
-        z-index: 1;
-      }
+      
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding-bottom: 5px;
+  /* Separador sutil sin borde duro */
+  border-bottom: 1px solid rgba(160, 120, 70, 0.25);
+  position: relative;
+  z-index: 1;
+}
+
 
       .node-icon {
         font-size: 18px;
@@ -278,6 +286,7 @@
         margin-top: 6px;
         position: relative;
         z-index: 1;
+        font-weight: 700;
       }
 
       .node-tag {
@@ -305,56 +314,77 @@
         flex-wrap: wrap;
       }
 
-      .node-btn {
-        font-family: 'Cinzel', serif;
-        font-size: 9px;
-        padding: 3px 7px;
-        border: 1px solid var(--parchment-deep);
-        border-radius: 2px;
-        cursor: pointer;
-        transition: all 0.15s;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(160, 120, 70, 0.2) 100%);
-        color: var(--ink-dark);
-        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      }
+      
+.node-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  padding: 4px 9px;
+  font-weight: 700;
 
-      .node-btn:hover {
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(201, 160, 32, 0.3) 100%);
-        border-color: var(--gold);
-        color: var(--ink-dark);
-        box-shadow: 0 2px 6px rgba(201, 160, 32, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-      }
+  /* Textura papel en botones */
+  background: var(--paper-texture), rgba(244, 228, 193, 0.55);
+  background-size: cover;
+  background-blend-mode: multiply;
 
-      .node-btn.enter-btn {
-        background: linear-gradient(180deg, rgba(139, 26, 26, 0.2) 0%, rgba(139, 26, 26, 0.4) 100%);
-        border-color: var(--blood-red);
-        color: var(--blood-red);
-        font-weight: 600;
-      }
+  /* Máscara orgánica en botones */
+  -webkit-mask-image: var(--mask-node);
+  mask-image: var(--mask-node);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 
-      .node-btn.enter-btn:hover {
-        background: linear-gradient(180deg, rgba(139, 26, 26, 0.4) 0%, rgba(139, 26, 26, 0.6) 100%);
-        box-shadow: 0 2px 8px rgba(139, 26, 26, 0.4);
-      }
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--ink-dark);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
 
-      .node-btn.connect-btn {
-        background: linear-gradient(180deg, rgba(26, 58, 92, 0.2) 0%, rgba(26, 58, 92, 0.4) 100%);
-        border-color: var(--arcane-blue);
-        color: var(--arcane-blue);
-      }
+.node-btn:hover {
+  background: var(--paper-texture), rgba(201, 160, 32, 0.45);
+  background-size: cover;
+  background-blend-mode: multiply;
+  color: var(--ink-dark);
+  box-shadow: 0 3px 10px rgba(201, 160, 32, 0.3);
+  filter: brightness(1.05);
+}
 
-      .node-btn.connect-btn:hover {
-        background: linear-gradient(180deg, rgba(26, 58, 92, 0.4) 0%, rgba(26, 58, 92, 0.6) 100%);
-        box-shadow: 0 2px 8px rgba(26, 58, 92, 0.4);
-      }
+.node-btn.enter-btn {
+  background: var(--paper-texture), rgba(139, 26, 26, 0.35);
+  background-size: cover;
+  background-blend-mode: multiply;
+  color: var(--blood-red);
+}
 
-      .node-btn.delete-btn {
-        background: linear-gradient(180deg, rgba(80, 20, 20, 0.15) 0%, rgba(80, 20, 20, 0.3) 100%);
-        border-color: rgba(139, 26, 26, 0.5);
-        color: rgba(139, 26, 26, 0.8);
-        margin-left: auto;
-      }
+.node-btn.enter-btn:hover {
+  background: var(--paper-texture), rgba(139, 26, 26, 0.55);
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+.node-btn.connect-btn {
+  background: var(--paper-texture), rgba(26, 58, 92, 0.35);
+  background-size: cover;
+  background-blend-mode: multiply;
+  color: var(--arcane-blue);
+}
+
+.node-btn.connect-btn:hover {
+  background: var(--paper-texture), rgba(26, 58, 92, 0.55);
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+.node-btn.delete-btn {
+  background: var(--paper-texture), rgba(80, 20, 20, 0.25);
+  background-size: cover;
+  background-blend-mode: multiply;
+  color: rgba(139, 26, 26, 0.8);
+  margin-left: auto;
+}
+
 
       .node-ports {
         position: absolute;
@@ -1357,17 +1387,33 @@
         display: flex;
       }
 
-      .details-box {
-        width: 90vw;
-        height: 88vh;
-        background: linear-gradient(160deg, #1a1208 0%, #0e0a04 100%);
-        border: 1px solid rgba(160, 120, 70, 0.45);
-        border-radius: 6px;
-        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
+      
+.details-box {
+  width: 90vw;
+  height: 88vh;
+
+  /* Textura papel como fondo del panel */
+  background: var(--paper-texture), linear-gradient(160deg, #1e1610 0%, #0e0a04 100%);
+  background-size: cover, cover;
+  background-blend-mode: soft-light;
+
+  border: none;
+  border-radius: 0;
+
+  /* Máscara orgánica para el panel de detalles */
+  -webkit-mask-image: var(--mask-node);
+  mask-image: var(--mask-node);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 
       .details-header {
         display: flex;
@@ -1422,28 +1468,30 @@
         scrollbar-color: rgba(160, 120, 70, 0.3) transparent;
       }
 
-      .details-textarea {
-        width: 100%;
-        flex: 1;
-        min-height: 300px;
-        background: rgba(244, 228, 193, 0.04);
-        border: 1px solid rgba(160, 120, 70, 0.2);
-        border-radius: 4px;
-        color: var(--parchment-light);
-        font-family: 'Crimson Text', serif;
-        font-size: 15px;
-        line-height: 1.7;
-        padding: 14px 16px;
-        resize: vertical;
-        box-sizing: border-box;
-        outline: none;
-        transition: border-color 0.2s;
-      }
+      
+.details-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 300px;
+  background: rgba(244, 228, 193, 0.07);
+  border: none;
+  border-bottom: 1px solid rgba(160, 120, 70, 0.2);
+  border-radius: 0;
+  color: var(--parchment-light);
+  font-family: 'Crimson Text', serif;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 14px 16px;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  transition: background 0.2s;
+}
 
-      .details-textarea:focus {
-        border-color: rgba(160, 120, 70, 0.55);
-        background: rgba(244, 228, 193, 0.06);
-      }
+.details-textarea:focus {
+  background: rgba(244, 228, 193, 0.1);
+}
+
 
       .details-textarea::placeholder {
         color: rgba(244, 228, 193, 0.2);
@@ -2395,6 +2443,8 @@
         z-index: 10;
         user-select: none;
         touch-action: none;
+
+        
       }
 
       .canvas-svg-icon:active {
@@ -2407,13 +2457,23 @@
         border-radius: 4px;
       }
 
-      .svg-icon-body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 4px;
-        border-radius: 4px;
-      }
+      
+.svg-icon-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 0;
+
+  /* Máscara orgánica para iconos SVG flotantes */
+  -webkit-mask-image: var(--mask-node);
+  mask-image: var(--mask-node);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
 
       .svg-icon-body svg {
         display: block;
@@ -2571,33 +2631,42 @@
 
 
       /* ── IMÁGENES FLOTANTES ── */
-      .canvas-float-img {
-        position: absolute;
-        cursor: grab;
-        user-select: none;
-        touch-action: none;
-        border: 1px solid transparent;
-        border-radius: 3px;
-        transition: border-color 0.15s;
-      }
+      
+.canvas-float-img {
+  position: absolute;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
 
-      .canvas-float-img:active {
-        cursor: grabbing;
-      }
+  /* Máscara orgánica para imágenes flotantes */
+  -webkit-mask-image: var(--mask-node);
+  mask-image: var(--mask-node);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 
-      .canvas-float-img.selected {
-        border-color: var(--gold);
-        box-shadow: 0 0 12px rgba(201, 160, 32, 0.5);
-      }
+  border: none;
+  border-radius: 0;
+  transition: filter 0.15s;
+}
 
-      .canvas-float-img img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 2px;
-        pointer-events: none;
-      }
+.canvas-float-img:active {
+  cursor: grabbing;
+}
+
+.canvas-float-img.selected {
+  filter: drop-shadow(0 0 10px rgba(201, 160, 32, 0.6));
+}
+
+.canvas-float-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
 
 
 
