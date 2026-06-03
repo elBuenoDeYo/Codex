@@ -2421,6 +2421,147 @@
       }
 
 
+      /* ── LIENZO DE DIBUJO ── */
+      #draw-canvas-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.82);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+
+      #draw-canvas-modal.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .draw-box {
+        width: 92vw;
+        max-width: 900px;
+        background: linear-gradient(160deg, #1a1208 0%, #0e0a04 100%);
+        border: 1px solid rgba(160, 120, 70, 0.5);
+        border-radius: 6px;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.9);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        max-height: 90vh;
+      }
+
+      .draw-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: rgba(26, 18, 8, 0.95);
+        border-bottom: 1px solid rgba(160, 120, 70, 0.3);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+      }
+
+      .draw-tool-btn {
+        font-family: 'Cinzel', serif;
+        font-size: 10px;
+        padding: 4px 9px;
+        background: linear-gradient(180deg, rgba(244, 228, 193, 0.1) 0%, rgba(160, 120, 70, 0.07) 100%);
+        border: 1px solid rgba(160, 120, 70, 0.4);
+        border-radius: 3px;
+        color: var(--parchment-light);
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+
+      .draw-tool-btn:hover {
+        background: linear-gradient(180deg, rgba(201, 160, 32, 0.22) 0%, rgba(201, 160, 32, 0.12) 100%);
+        border-color: var(--gold);
+        color: var(--gold-light);
+      }
+
+      .draw-tool-btn.active {
+        background: linear-gradient(180deg, rgba(26, 58, 92, 0.45) 0%, rgba(26, 58, 92, 0.28) 100%);
+        border-color: #7ab3e0;
+        color: #7ab3e0;
+      }
+
+      .draw-tool-btn.save-btn {
+        background: linear-gradient(180deg, rgba(139, 26, 26, 0.25) 0%, rgba(139, 26, 26, 0.45) 100%);
+        border-color: var(--blood-red);
+        color: #ffaaaa;
+        margin-left: auto;
+      }
+
+      .draw-tool-btn.save-btn:hover {
+        background: linear-gradient(180deg, rgba(139, 26, 26, 0.45) 0%, rgba(139, 26, 26, 0.65) 100%);
+      }
+
+      .draw-sep {
+        width: 1px;
+        height: 22px;
+        background: rgba(160, 120, 70, 0.25);
+        flex-shrink: 0;
+      }
+
+      .draw-color-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 3px;
+        border: 2px solid rgba(160, 120, 70, 0.5);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: border-color 0.15s, transform 0.15s;
+      }
+
+      .draw-color-btn:hover {
+        border-color: var(--gold);
+        transform: scale(1.1);
+      }
+
+      .draw-size-label {
+        font-family: 'Cinzel', serif;
+        font-size: 9px;
+        color: rgba(160, 120, 70, 0.8);
+        white-space: nowrap;
+      }
+
+      .draw-canvas-wrap {
+        flex: 1;
+        overflow: auto;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        background: #111;
+        cursor: crosshair;
+        min-height: 0;
+      }
+
+      #draw-main-canvas {
+        display: block;
+        background: #fff;
+        cursor: crosshair;
+        touch-action: none;
+      }
+
+      .draw-canvas-wrap.eraser-mode {
+        cursor: cell;
+      }
+
+      .draw-status {
+        font-family: 'Cinzel', serif;
+        font-size: 9px;
+        color: rgba(160, 120, 70, 0.6);
+        padding: 4px 12px;
+        border-top: 1px solid rgba(160, 120, 70, 0.15);
+        flex-shrink: 0;
+      }
+
+
 
       @media (max-width: 600px) {
         #side-panel {
@@ -2491,23 +2632,23 @@
       <div id="zoom-level">100%</div><button class="zoom-btn" id="zoom-out">−</button><button class="zoom-btn"
         id="zoom-reset" title="Reset zoom">⊙</button>
     </div>
-    
-<div id="context-menu">
-  <div id="ctx-canvas-options">
-    <div class="ctx-item" id="ctx-add-node">✦ Añadir Nodo aquí</div>
-    <div class="ctx-item" id="ctx-add-svg-icon">🎨 Añadir Icono SVG</div>
-    <div class="ctx-item" id="ctx-paste">⎘ Pegar</div>
-    <div class="ctx-sep"></div>
-    <div class="ctx-item" id="ctx-fit">⊞ Ajustar vista</div>
-    <div class="ctx-item" id="ctx-center">⊙ Centrar</div>
-  </div>
-  <div id="ctx-svg-options" style="display:none">
-    <div class="ctx-item" id="ctx-svg-color">🎨 Cambiar color</div>
-    <div class="ctx-item" id="ctx-svg-size">⤢ Cambiar tamaño</div>
-    <div class="ctx-sep"></div>
-    <div class="ctx-item danger" id="ctx-svg-delete">✕ Eliminar icono</div>
-  </div>
-</div>
+
+    <div id="context-menu">
+      <div id="ctx-canvas-options">
+        <div class="ctx-item" id="ctx-add-node">✦ Añadir Nodo aquí</div>
+        <div class="ctx-item" id="ctx-add-svg-icon">🎨 Añadir Icono SVG</div>
+        <div class="ctx-item" id="ctx-paste">⎘ Pegar</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" id="ctx-fit">⊞ Ajustar vista</div>
+        <div class="ctx-item" id="ctx-center">⊙ Centrar</div>
+      </div>
+      <div id="ctx-svg-options" style="display:none">
+        <div class="ctx-item" id="ctx-svg-color">🎨 Cambiar color</div>
+        <div class="ctx-item" id="ctx-svg-size">⤢ Cambiar tamaño</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item danger" id="ctx-svg-delete">✕ Eliminar icono</div>
+      </div>
+    </div>
 
     <div class="modal-overlay" id="connection-modal">
       <div class="modal-box">
@@ -3695,36 +3836,54 @@
 
           ;
 
-        const makeImgWrapper = (src, idx) => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'details-img-wrapper'; wrapper.dataset.idx = idx;
+        
+const makeImgWrapper = (src, idx) => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'details-img-wrapper';
+  wrapper.dataset.idx = idx;
+  wrapper.id = `details-img-${idx}`;
 
-          wrapper.id = `details-img-$ {
-        idx
-    }
+  const img = document.createElement('img');
+  img.src = src; img.alt = '';
+  // Cursor para indicar que es editable
+  img.style.cursor = 'pointer';
+  img.title = 'Clic para editar/dibujar encima';
+  img.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (detailsNodeId) DrawCanvas.open(detailsNodeId, idx);
+  });
+  wrapper.appendChild(img);
 
-    `;
-          const img = document.createElement('img'); img.src = src; img.alt = '';
-          wrapper.appendChild(img);
-          const num = document.createElement('span');
+  const num = document.createElement('span');
+  num.className = 'details-img-number';
+  num.textContent = `img:${idx + 1}`;
+  wrapper.appendChild(num);
 
-          num.className = 'details-img-number'; num.textContent = `img:$ {
-        idx + 1
-    }
+  // Botón editar (lápiz)
+  const editBtn = document.createElement('button');
+  editBtn.className = 'details-img-del';
+  editBtn.style.right = '28px'; // desplazado para no solapar con el de borrar
+  editBtn.style.background = 'rgba(26,58,92,0.85)';
+  editBtn.textContent = '✏';
+  editBtn.title = 'Editar/dibujar encima';
+  editBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (detailsNodeId) DrawCanvas.open(detailsNodeId, idx);
+  });
+  wrapper.appendChild(editBtn);
 
-    `;
-          wrapper.appendChild(num);
-          const delBtn = document.createElement('button');
-          delBtn.className = 'details-img-del'; delBtn.textContent = '✕'; delBtn.title = 'Eliminar imagen';
+  const delBtn = document.createElement('button');
+  delBtn.className = 'details-img-del';
+  delBtn.textContent = '✕';
+  delBtn.title = 'Eliminar imagen';
+  delBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); removeDetailImage(idx);
+  });
+  wrapper.appendChild(delBtn);
 
-          delBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); removeDetailImage(idx);
-          });
-          wrapper.appendChild(delBtn);
-          return wrapper;
-        }
+  return wrapper;
+};
 
-          ;
 
         const setDetailsMode = (mode) => {
           const ta = document.getElementById('details-textarea');
@@ -4530,16 +4689,16 @@
             }
           });
 
-          
-container.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    state.contextMenuPos = Canvas.screenToWorld(e.clientX, e.clientY);
-    const menu = dom.contextMenu;
-    menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
-    document.getElementById('ctx-canvas-options').style.display = 'block';
-    document.getElementById('ctx-svg-options').style.display = 'none';
-    menu.classList.add('open');
-});
+
+          container.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            state.contextMenuPos = Canvas.screenToWorld(e.clientX, e.clientY);
+            const menu = dom.contextMenu;
+            menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+            document.getElementById('ctx-canvas-options').style.display = 'block';
+            document.getElementById('ctx-svg-options').style.display = 'none';
+            menu.classList.add('open');
+          });
 
 
           document.addEventListener('click', () => {
@@ -4723,6 +4882,12 @@ container.addEventListener('contextmenu', (e) => {
             addNode(wp.x - 110 + (Math.random() - 0.5) * 200, wp.y - 60 + (Math.random() - 0.5) * 200);
           });
 
+          
+document.getElementById('details-draw-btn').addEventListener('click', () => {
+  if (detailsNodeId) DrawCanvas.open(detailsNodeId);
+});
+
+
           document.getElementById('btn-connect-mode').addEventListener('click', () => {
             if (state.connectingMode) cancelConnecting();
             else if (state.selectedNodeId) startConnecting(state.selectedNodeId);
@@ -4875,6 +5040,10 @@ container.addEventListener('contextmenu', (e) => {
             });
             e.target.value = '';
           });
+
+          
+DrawCanvas.initEvents();
+
         }
 
           ;
@@ -5226,6 +5395,9 @@ container.addEventListener('contextmenu', (e) => {
               rebuildIndex();
               Stars.start();
               initCanvasEvents();
+              
+DrawCanvas.initEvents();
+
               initButtonEvents();
               Timeline.initEvents();
 
@@ -5252,6 +5424,9 @@ container.addEventListener('contextmenu', (e) => {
           loadExampleData();
           Stars.start();
           initCanvasEvents();
+          
+DrawCanvas.initEvents();
+
           initButtonEvents();
           Timeline.initEvents();
 
@@ -6125,14 +6300,14 @@ _$ {
                   svgEl.style.color = 'var(--parchment-light)';
                   // Forzar currentColor en TODOS los elementos internos
                   svgEl.querySelectorAll('*').forEach(child => {
-        const fill = child.getAttribute('fill');
-        const stroke = child.getAttribute('stroke');
-        if (fill && fill !== 'none') child.setAttribute('fill', 'currentColor');
-        if (stroke && stroke !== 'none') child.setAttribute('stroke', 'currentColor');
-        if (child.style.fill && child.style.fill !== 'none') child.style.fill = 'currentColor';
-        if (child.style.stroke && child.style.stroke !== 'none') child.style.stroke = 'currentColor';
-        if (child.style.color) child.style.color = 'inherit';
-    });
+                    const fill = child.getAttribute('fill');
+                    const stroke = child.getAttribute('stroke');
+                    if (fill && fill !== 'none') child.setAttribute('fill', 'currentColor');
+                    if (stroke && stroke !== 'none') child.setAttribute('stroke', 'currentColor');
+                    if (child.style.fill && child.style.fill !== 'none') child.style.fill = 'currentColor';
+                    if (child.style.stroke && child.style.stroke !== 'none') child.style.stroke = 'currentColor';
+                    if (child.style.color) child.style.color = 'inherit';
+                  });
                   item.replaceChild(svgEl, item.firstChild);
                 }
               }));
@@ -6199,29 +6374,29 @@ _$ {
             body.style.width = (iconData.size || 64) + 'px';
             body.style.height = (iconData.size || 64) + 'px';
 
-            
-              body.innerHTML = iconData.svgText;
-              const svgEl = body.querySelector('svg');
-              if (svgEl) {
-                  svgEl.style.width = '100%';
-                  svgEl.style.height = '100%';
-                  svgEl.removeAttribute('fill');
-                  svgEl.style.fill = 'currentColor';
-                  // Forzar en TODOS los descendientes sin excepción
-                  svgEl.querySelectorAll('*').forEach(child => {
-                      const fill = child.getAttribute('fill');
-                      const stroke = child.getAttribute('stroke');
-                      if (fill && fill !== 'none') child.setAttribute('fill', 'currentColor');
-                      if (stroke && stroke !== 'none') child.setAttribute('stroke', 'currentColor');
-                      if (child.style.fill && child.style.fill !== 'none') child.style.fill = 'currentColor';
-                      if (child.style.stroke && child.style.stroke !== 'none') child.style.stroke = 'currentColor';
-                      if (child.style.color) child.style.color = 'inherit';
-                  });
-              }
+
+            body.innerHTML = iconData.svgText;
+            const svgEl = body.querySelector('svg');
+            if (svgEl) {
+              svgEl.style.width = '100%';
+              svgEl.style.height = '100%';
+              svgEl.removeAttribute('fill');
+              svgEl.style.fill = 'currentColor';
+              // Forzar en TODOS los descendientes sin excepción
+              svgEl.querySelectorAll('*').forEach(child => {
+                const fill = child.getAttribute('fill');
+                const stroke = child.getAttribute('stroke');
+                if (fill && fill !== 'none') child.setAttribute('fill', 'currentColor');
+                if (stroke && stroke !== 'none') child.setAttribute('stroke', 'currentColor');
+                if (child.style.fill && child.style.fill !== 'none') child.style.fill = 'currentColor';
+                if (child.style.stroke && child.style.stroke !== 'none') child.style.stroke = 'currentColor';
+                if (child.style.color) child.style.color = 'inherit';
+              });
+            }
 
 
             // Puertos de conexión (igual que los nodos)
-            
+
 
             el.appendChild(body);
 
@@ -6230,76 +6405,76 @@ _$ {
           };
 
           // ── Eventos del icono SVG ──
-          
-const bindSvgIconEvents = (el, iconData) => {
-    const id = iconData.id;
 
-    const openSvgMenu = (e) => {
-        e.stopPropagation();
-        selectSvgIcon(id);
-        state.selectedSvgIconId = id;
-        state.selectedSvgIconData = iconData;
-        const menu = dom.contextMenu;
-        menu.style.left = e.clientX + 'px';
-        menu.style.top = e.clientY + 'px';
-        document.getElementById('ctx-canvas-options').style.display = 'none';
-        document.getElementById('ctx-svg-options').style.display = 'block';
-        menu.classList.add('open');
-    };
+          const bindSvgIconEvents = (el, iconData) => {
+            const id = iconData.id;
 
-    el.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        if (e.target.classList.contains('port')) return;
-        if (state.connectingMode) return;
-        e.preventDefault(); e.stopPropagation();
-        selectSvgIcon(id);
-        const worldPos = Canvas.screenToWorld(e.clientX, e.clientY);
-        state.dragging = {
-            id, isSvgIcon: true,
-            startX: worldPos.x - (iconData.x || 0),
-            startY: worldPos.y - (iconData.y || 0),
-        };
-    });
+            const openSvgMenu = (e) => {
+              e.stopPropagation();
+              selectSvgIcon(id);
+              state.selectedSvgIconId = id;
+              state.selectedSvgIconData = iconData;
+              const menu = dom.contextMenu;
+              menu.style.left = e.clientX + 'px';
+              menu.style.top = e.clientY + 'px';
+              document.getElementById('ctx-canvas-options').style.display = 'none';
+              document.getElementById('ctx-svg-options').style.display = 'block';
+              menu.classList.add('open');
+            };
 
-    el.addEventListener('click', (e) => {
-        if (e.target.classList.contains('port')) return;
-        if (state.connectingMode && state.connectingSourceId && state.connectingSourceId !== id) {
-            e.stopPropagation();
-            pendingConnection = { from: state.connectingSourceId, to: id, fromPort: state.connectingSourcePort };
-            cancelConnecting(); openConnectionModal(); return;
-        }
-        openSvgMenu(e);
-    });
+            el.addEventListener('mousedown', (e) => {
+              if (e.button !== 0) return;
+              if (e.target.classList.contains('port')) return;
+              if (state.connectingMode) return;
+              e.preventDefault(); e.stopPropagation();
+              selectSvgIcon(id);
+              const worldPos = Canvas.screenToWorld(e.clientX, e.clientY);
+              state.dragging = {
+                id, isSvgIcon: true,
+                startX: worldPos.x - (iconData.x || 0),
+                startY: worldPos.y - (iconData.y || 0),
+              };
+            });
 
-    el.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        openSvgMenu(e);
-    });
-
-    el.querySelectorAll('.port').forEach(port => {
-        port.addEventListener('mousedown', (e) => {
-            e.stopPropagation(); e.preventDefault();
-            const portName = port.dataset.port;
-            state.connectingMode = true;
-            state.connectingSourceId = id;
-            state.connectingSourcePort = portName;
-            document.body.classList.add('connecting-mode');
-            el.classList.add('connecting-source');
-            const p1 = getSvgIconPortPos(iconData, portName);
-            dom.tempConn.setAttribute('d', `M ${p1.x} ${p1.y} L ${p1.x} ${p1.y}`);
-            dom.tempConn.style.display = 'block';
-        });
-        port.addEventListener('mouseup', (e) => {
-            if (state.connectingMode && state.connectingSourceId && state.connectingSourceId !== id) {
+            el.addEventListener('click', (e) => {
+              if (e.target.classList.contains('port')) return;
+              if (state.connectingMode && state.connectingSourceId && state.connectingSourceId !== id) {
                 e.stopPropagation();
-                pendingConnection = { from: state.connectingSourceId, to: id, fromPort: state.connectingSourcePort, toPort: port.dataset.port };
-                cancelConnecting(); openConnectionModal();
-            }
-        });
-        port.addEventListener('mouseenter', () => { if (state.connectingMode && state.connectingSourceId !== id) port.classList.add('active'); });
-        port.addEventListener('mouseleave', () => port.classList.remove('active'));
-    });
-};
+                pendingConnection = { from: state.connectingSourceId, to: id, fromPort: state.connectingSourcePort };
+                cancelConnecting(); openConnectionModal(); return;
+              }
+              openSvgMenu(e);
+            });
+
+            el.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              openSvgMenu(e);
+            });
+
+            el.querySelectorAll('.port').forEach(port => {
+              port.addEventListener('mousedown', (e) => {
+                e.stopPropagation(); e.preventDefault();
+                const portName = port.dataset.port;
+                state.connectingMode = true;
+                state.connectingSourceId = id;
+                state.connectingSourcePort = portName;
+                document.body.classList.add('connecting-mode');
+                el.classList.add('connecting-source');
+                const p1 = getSvgIconPortPos(iconData, portName);
+                dom.tempConn.setAttribute('d', `M ${p1.x} ${p1.y} L ${p1.x} ${p1.y}`);
+                dom.tempConn.style.display = 'block';
+              });
+              port.addEventListener('mouseup', (e) => {
+                if (state.connectingMode && state.connectingSourceId && state.connectingSourceId !== id) {
+                  e.stopPropagation();
+                  pendingConnection = { from: state.connectingSourceId, to: id, fromPort: state.connectingSourcePort, toPort: port.dataset.port };
+                  cancelConnecting(); openConnectionModal();
+                }
+              });
+              port.addEventListener('mouseenter', () => { if (state.connectingMode && state.connectingSourceId !== id) port.classList.add('active'); });
+              port.addEventListener('mouseleave', () => port.classList.remove('active'));
+            });
+          };
 
 
           // ── Posición de puertos del icono SVG ──
@@ -6381,59 +6556,59 @@ const bindSvgIconEvents = (el, iconData) => {
             });
 
 
-            
-document.getElementById('ctx-svg-color').addEventListener('click', () => {
-    if (!state.selectedSvgIconId || !state.selectedSvgIconData) return;
-    const iconData = state.selectedSvgIconData;
-    const id = state.selectedSvgIconId;
-    const input = document.createElement('input');
-    input.type = 'color';
-    input.value = iconData.color || '#f4e4c1';
-    input.style.cssText = 'position:fixed;opacity:0;width:1px;height:1px;left:-9999px';
-    document.body.appendChild(input);
-    input.click();
-    input.addEventListener('input', () => {
-        iconData.color = input.value;
-        const el = dom.canvasWorld.querySelector(`[data-svg-id="${id}"] .svg-icon-body`);
-        if (el) {
-            el.style.color = input.value;
-            el.querySelectorAll('*').forEach(child => {
-                if (child.getAttribute('fill') && child.getAttribute('fill') !== 'none') child.setAttribute('fill', 'currentColor');
-                if (child.getAttribute('stroke') && child.getAttribute('stroke') !== 'none') child.setAttribute('stroke', 'currentColor');
-                if (child.style.fill && child.style.fill !== 'none') child.style.fill = 'currentColor';
-                if (child.style.stroke && child.style.stroke !== 'none') child.style.stroke = 'currentColor';
+
+            document.getElementById('ctx-svg-color').addEventListener('click', () => {
+              if (!state.selectedSvgIconId || !state.selectedSvgIconData) return;
+              const iconData = state.selectedSvgIconData;
+              const id = state.selectedSvgIconId;
+              const input = document.createElement('input');
+              input.type = 'color';
+              input.value = iconData.color || '#f4e4c1';
+              input.style.cssText = 'position:fixed;opacity:0;width:1px;height:1px;left:-9999px';
+              document.body.appendChild(input);
+              input.click();
+              input.addEventListener('input', () => {
+                iconData.color = input.value;
+                const el = dom.canvasWorld.querySelector(`[data-svg-id="${id}"] .svg-icon-body`);
+                if (el) {
+                  el.style.color = input.value;
+                  el.querySelectorAll('*').forEach(child => {
+                    if (child.getAttribute('fill') && child.getAttribute('fill') !== 'none') child.setAttribute('fill', 'currentColor');
+                    if (child.getAttribute('stroke') && child.getAttribute('stroke') !== 'none') child.setAttribute('stroke', 'currentColor');
+                    if (child.style.fill && child.style.fill !== 'none') child.style.fill = 'currentColor';
+                    if (child.style.stroke && child.style.stroke !== 'none') child.style.stroke = 'currentColor';
+                  });
+                }
+              });
+              input.addEventListener('change', () => { document.body.removeChild(input); autoSave(); });
+              input.addEventListener('blur', () => { setTimeout(() => { if (document.body.contains(input)) document.body.removeChild(input); }, 200); });
             });
-        }
-    });
-    input.addEventListener('change', () => { document.body.removeChild(input); autoSave(); });
-    input.addEventListener('blur', () => { setTimeout(() => { if (document.body.contains(input)) document.body.removeChild(input); }, 200); });
-});
 
-document.getElementById('ctx-svg-size').addEventListener('click', () => {
-    if (!state.selectedSvgIconId || !state.selectedSvgIconData) return;
-    const iconData = state.selectedSvgIconData;
-    const id = state.selectedSvgIconId;
-    const newSize = prompt('Tamaño del icono (px):', iconData.size || 64);
-    if (newSize === null) return;
-    const size = parseInt(newSize);
-    if (isNaN(size) || size < 16 || size > 512) { notify('⚠ Tamaño entre 16 y 512 px'); return; }
-    iconData.size = size;
-    const el = dom.canvasWorld.querySelector(`[data-svg-id="${id}"] .svg-icon-body`);
-    if (el) { el.style.width = size + 'px'; el.style.height = size + 'px'; }
-    autoSave(); notify(`⤢ Tamaño: ${size}px`);
-});
+            document.getElementById('ctx-svg-size').addEventListener('click', () => {
+              if (!state.selectedSvgIconId || !state.selectedSvgIconData) return;
+              const iconData = state.selectedSvgIconData;
+              const id = state.selectedSvgIconId;
+              const newSize = prompt('Tamaño del icono (px):', iconData.size || 64);
+              if (newSize === null) return;
+              const size = parseInt(newSize);
+              if (isNaN(size) || size < 16 || size > 512) { notify('⚠ Tamaño entre 16 y 512 px'); return; }
+              iconData.size = size;
+              const el = dom.canvasWorld.querySelector(`[data-svg-id="${id}"] .svg-icon-body`);
+              if (el) { el.style.width = size + 'px'; el.style.height = size + 'px'; }
+              autoSave(); notify(`⤢ Tamaño: ${size}px`);
+            });
 
-document.getElementById('ctx-svg-delete').addEventListener('click', () => {
-    if (!state.selectedSvgIconId) return;
-    const level = currentLevel();
-    if (level.svgIcons) delete level.svgIcons[state.selectedSvgIconId];
-    const el = dom.canvasWorld.querySelector(`[data-svg-id="${state.selectedSvgIconId}"]`);
-    if (el) el.remove();
-    level.connections = (level.connections || []).filter(c => c.from !== state.selectedSvgIconId && c.to !== state.selectedSvgIconId);
-    renderConnections();
-    state.selectedSvgIconId = null; state.selectedSvgIconData = null;
-    autoSave(); notify('✕ Icono eliminado');
-});
+            document.getElementById('ctx-svg-delete').addEventListener('click', () => {
+              if (!state.selectedSvgIconId) return;
+              const level = currentLevel();
+              if (level.svgIcons) delete level.svgIcons[state.selectedSvgIconId];
+              const el = dom.canvasWorld.querySelector(`[data-svg-id="${state.selectedSvgIconId}"]`);
+              if (el) el.remove();
+              level.connections = (level.connections || []).filter(c => c.from !== state.selectedSvgIconId && c.to !== state.selectedSvgIconId);
+              renderConnections();
+              state.selectedSvgIconId = null; state.selectedSvgIconData = null;
+              autoSave(); notify('✕ Icono eliminado');
+            });
 
             // Opción del menú contextual
             document.getElementById('ctx-add-svg-icon').addEventListener('click', () => {
@@ -6454,6 +6629,324 @@ document.getElementById('ctx-svg-delete').addEventListener('click', () => {
           };
         })();
 
+        
+// ── LIENZO DE DIBUJO ──────────────────────────────────────────────
+const DrawCanvas = (() => {
+  const dc = {
+    tool: 'pen',
+    color: '#2c1a0e',
+    size: 3,
+    drawing: false,
+    startX: 0, startY: 0,
+    history: [],       // snapshots para deshacer
+    snapshot: null,    // snapshot temporal para formas
+    targetNodeId: null,
+    editImgIdx: null,  // si estamos editando una imagen existente
+  };
+
+  const canvas  = () => document.getElementById('draw-main-canvas');
+  const ctx     = () => canvas().getContext('2d');
+  const modal   = () => document.getElementById('draw-canvas-modal');
+  const wrap    = () => document.getElementById('draw-canvas-wrap');
+  const statusEl= () => document.getElementById('draw-status');
+
+  const TOOL_LABELS = {
+    pen:'Lápiz', line:'Línea', rect:'Rectángulo',
+    ellipse:'Elipse', arrow:'Flecha', eraser:'Borrador'
+  };
+
+  const setTool = (t) => {
+    dc.tool = t;
+    document.querySelectorAll('.draw-tool-btn[id^="draw-tool-"]')
+      .forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`draw-tool-${t}`);
+    if (btn) btn.classList.add('active');
+    wrap().classList.toggle('eraser-mode', t === 'eraser');
+    updateStatus();
+  };
+
+  const updateStatus = () => {
+    statusEl().textContent =
+      `Herramienta: ${TOOL_LABELS[dc.tool]} · Grosor: ${dc.size}px · Color: ${dc.color}`;
+  };
+
+  const saveHistory = () => {
+    const c = canvas();
+    dc.history.push(c.toDataURL());
+    if (dc.history.length > 40) dc.history.shift();
+  };
+
+  const undo = () => {
+    if (!dc.history.length) return;
+    const prev = dc.history.pop();
+    const img = new Image();
+    img.onload = () => { ctx().clearRect(0,0,canvas().width,canvas().height); ctx().drawImage(img,0,0); };
+    img.src = prev;
+  };
+
+  const clearCanvas = () => {
+    saveHistory();
+    ctx().clearRect(0, 0, canvas().width, canvas().height);
+    ctx().fillStyle = '#ffffff';
+    ctx().fillRect(0, 0, canvas().width, canvas().height);
+  };
+
+  const getPos = (e) => {
+    const c = canvas();
+    const rect = c.getBoundingClientRect();
+    const scaleX = c.width  / rect.width;
+    const scaleY = c.height / rect.height;
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - rect.left) * scaleX,
+      y: (src.clientY - rect.top)  * scaleY,
+    };
+  };
+
+  const drawArrow = (x1,y1,x2,y2) => {
+    const cx = ctx();
+    const headLen = Math.max(12, dc.size * 4);
+    const angle = Math.atan2(y2-y1, x2-x1);
+    cx.beginPath();
+    cx.moveTo(x1,y1); cx.lineTo(x2,y2);
+    cx.lineTo(x2 - headLen*Math.cos(angle-Math.PI/6), y2 - headLen*Math.sin(angle-Math.PI/6));
+    cx.moveTo(x2,y2);
+    cx.lineTo(x2 - headLen*Math.cos(angle+Math.PI/6), y2 - headLen*Math.sin(angle+Math.PI/6));
+    cx.stroke();
+  };
+
+  const onDown = (e) => {
+    e.preventDefault();
+    dc.drawing = true;
+    const pos = getPos(e);
+    dc.startX = pos.x; dc.startY = pos.y;
+    saveHistory();
+    dc.snapshot = ctx().getImageData(0, 0, canvas().width, canvas().height);
+
+    if (dc.tool === 'pen' || dc.tool === 'eraser') {
+      const cx = ctx();
+      cx.beginPath();
+      cx.moveTo(pos.x, pos.y);
+    }
+  };
+
+  const onMove = (e) => {
+    if (!dc.drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    const cx = ctx();
+
+    if (dc.tool === 'pen') {
+      cx.globalCompositeOperation = 'source-over';
+      cx.strokeStyle = dc.color;
+      cx.lineWidth   = dc.size;
+      cx.lineCap     = 'round';
+      cx.lineJoin    = 'round';
+      cx.lineTo(pos.x, pos.y);
+      cx.stroke();
+    } else if (dc.tool === 'eraser') {
+      cx.globalCompositeOperation = 'destination-out';
+      cx.lineWidth = dc.size * 3;
+      cx.lineCap   = 'round';
+      cx.lineTo(pos.x, pos.y);
+      cx.stroke();
+      cx.globalCompositeOperation = 'source-over';
+    } else {
+      // Formas: restaurar snapshot y redibujar
+      cx.putImageData(dc.snapshot, 0, 0);
+      cx.globalCompositeOperation = 'source-over';
+      cx.strokeStyle = dc.color;
+      cx.fillStyle   = 'transparent';
+      cx.lineWidth   = dc.size;
+      cx.lineCap     = 'round';
+      cx.lineJoin    = 'round';
+      cx.beginPath();
+
+      if (dc.tool === 'line') {
+        cx.moveTo(dc.startX, dc.startY);
+        cx.lineTo(pos.x, pos.y);
+        cx.stroke();
+      } else if (dc.tool === 'rect') {
+        cx.strokeRect(dc.startX, dc.startY, pos.x - dc.startX, pos.y - dc.startY);
+      } else if (dc.tool === 'ellipse') {
+        const rx = Math.abs(pos.x - dc.startX) / 2;
+        const ry = Math.abs(pos.y - dc.startY) / 2;
+        const cx2 = dc.startX + (pos.x - dc.startX) / 2;
+        const cy2 = dc.startY + (pos.y - dc.startY) / 2;
+        cx.ellipse(cx2, cy2, rx, ry, 0, 0, Math.PI * 2);
+        cx.stroke();
+      } else if (dc.tool === 'arrow') {
+        drawArrow(dc.startX, dc.startY, pos.x, pos.y);
+      }
+    }
+  };
+
+  const onUp = (e) => {
+    if (!dc.drawing) return;
+    dc.drawing = false;
+    if (dc.tool === 'pen' || dc.tool === 'eraser') {
+      ctx().closePath();
+    }
+    dc.snapshot = null;
+  };
+
+  const open = (nodeId, editIdx = null) => {
+    dc.targetNodeId = nodeId;
+    dc.editImgIdx   = editIdx;
+    dc.history      = [];
+
+    const c = canvas();
+    const cx = ctx();
+
+    // Si editamos una imagen existente, cargarla
+    if (editIdx !== null) {
+      const level = currentLevel();
+      const node  = level.nodes[nodeId];
+      if (node && node.detailImages && node.detailImages[editIdx]) {
+        const img = new Image();
+        img.onload = () => {
+          c.width  = img.naturalWidth  || 800;
+          c.height = img.naturalHeight || 500;
+          cx.fillStyle = '#ffffff';
+          cx.fillRect(0, 0, c.width, c.height);
+          cx.drawImage(img, 0, 0);
+        };
+        img.src = node.detailImages[editIdx];
+      }
+    } else {
+      c.width  = 800;
+      c.height = 500;
+      cx.fillStyle = '#ffffff';
+      cx.fillRect(0, 0, c.width, c.height);
+    }
+
+    setTool('pen');
+    updateStatus();
+    modal().classList.add('open');
+  };
+
+  const save = () => {
+    const level = currentLevel();
+    const node  = level.nodes[dc.targetNodeId];
+    if (!node) { close(); return; }
+    if (!node.detailImages) node.detailImages = [];
+
+    const dataUrl = canvas().toDataURL('image/png');
+
+    if (dc.editImgIdx !== null && dc.editImgIdx < node.detailImages.length) {
+      // Reemplazar imagen existente
+      node.detailImages[dc.editImgIdx] = dataUrl;
+      notify('🖌 Dibujo actualizado');
+    } else {
+      // Añadir nueva
+      node.detailImages.push(dataUrl);
+      notify('🖌 Dibujo guardado como imagen');
+    }
+
+    // Refrescar grid de imágenes si el modal de detalles está abierto
+    const grid = document.getElementById('details-img-grid');
+    if (grid) {
+      grid.innerHTML = '';
+      node.detailImages.forEach((src, i) => grid.appendChild(makeImgWrapper(src, i)));
+    }
+
+    close();
+  };
+
+  const close = () => {
+    modal().classList.remove('open');
+    dc.targetNodeId = null;
+    dc.editImgIdx   = null;
+    dc.history      = [];
+  };
+
+  const initEvents = () => {
+    const c = canvas();
+
+    // Ratón
+    c.addEventListener('mousedown',  onDown);
+    c.addEventListener('mousemove',  onMove);
+    c.addEventListener('mouseup',    onUp);
+    c.addEventListener('mouseleave', onUp);
+
+    // Táctil
+    c.addEventListener('touchstart',  onDown, { passive: false });
+    c.addEventListener('touchmove',   onMove, { passive: false });
+    c.addEventListener('touchend',    onUp);
+
+    // Herramientas
+    ['pen','line','rect','ellipse','arrow','eraser'].forEach(t => {
+      document.getElementById(`draw-tool-${t}`)
+        .addEventListener('click', () => setTool(t));
+    });
+
+    // Teclado (cuando el modal está abierto)
+    document.addEventListener('keydown', (e) => {
+      if (!modal().classList.contains('open')) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      const map = { p:'pen', l:'line', r:'rect', e:'ellipse', a:'arrow', x:'eraser' };
+      if (map[e.key.toLowerCase()]) setTool(map[e.key.toLowerCase()]);
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+    });
+
+    // Grosor
+    document.getElementById('draw-size').addEventListener('input', (ev) => {
+      dc.size = parseInt(ev.target.value);
+      document.getElementById('draw-size-val').textContent = dc.size;
+      updateStatus();
+    });
+
+    // Color picker
+    document.getElementById('draw-color-pick').addEventListener('input', (ev) => {
+      dc.color = ev.target.value;
+      updateStatus();
+    });
+
+    // Paleta rápida
+    document.querySelectorAll('.draw-color-btn[data-color]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        dc.color = btn.dataset.color;
+        document.getElementById('draw-color-pick').value = dc.color;
+        updateStatus();
+      });
+    });
+
+    // Botones
+    document.getElementById('draw-undo-btn') .addEventListener('click', undo);
+    document.getElementById('draw-clear-btn').addEventListener('click', clearCanvas);
+    document.getElementById('draw-save-btn') .addEventListener('click', save);
+    document.getElementById('draw-cancel-btn').addEventListener('click', close);
+
+    // Cambiar tamaño del lienzo
+    document.getElementById('draw-resize-btn').addEventListener('click', () => {
+      const w = prompt('Ancho del lienzo (px):', canvas().width);
+      if (w === null) return;
+      const h = prompt('Alto del lienzo (px):', canvas().height);
+      if (h === null) return;
+      const nw = parseInt(w), nh = parseInt(h);
+      if (isNaN(nw) || isNaN(nh) || nw < 100 || nh < 100) { notify('⚠ Mínimo 100×100 px'); return; }
+      // Conservar contenido
+      const tmp = canvas().toDataURL();
+      canvas().width  = nw;
+      canvas().height = nh;
+      ctx().fillStyle = '#ffffff';
+      ctx().fillRect(0, 0, nw, nh);
+      const img = new Image();
+      img.onload = () => ctx().drawImage(img, 0, 0);
+      img.src = tmp;
+      dc.history = [];
+    });
+
+    // Cerrar con overlay
+    modal().addEventListener('click', (e) => {
+      if (e.target === modal()) close();
+    });
+  };
+
+  return { open, close, initEvents };
+})();
+
+
 
         return {
           init
@@ -6470,9 +6963,11 @@ document.getElementById('ctx-svg-delete').addEventListener('click', () => {
           <div class="details-header"><span class="details-title-label" id="details-modal-title">Detalles</span>
             <div class="details-header-actions">
               <div class="details-mode-toggle"><button class="details-mode-btn active" id="mode-edit-btn">✏
-                  Editar</button><button class="details-mode-btn" id="mode-read-btn">👁 Leer</button></div><label
-                class="node-btn" style="cursor:pointer;margin-right:8px" title="Añadir imagen">🖼 Imagen <input
-                  type="file" id="details-img-input" accept="image*" multiple style="display:none"></label><button
+                  Editar</button><button class="details-mode-btn" id="mode-read-btn">👁 Leer</button></div>
+<label class="node-btn" style="cursor:pointer;margin-right:8px" title="Añadir imagen">🖼 Imagen <input
+  type="file" id="details-img-input" accept="image/*" multiple style="display:none"></label>
+<button class="node-btn" id="details-draw-btn" style="margin-right:8px" title="Abrir lienzo de dibujo">🖌 Dibujar</button>
+<button
                 class="details-close-btn" id="details-close-btn" title="Cerrar y guardar">✕</button>
             </div>
           </div>
@@ -6578,5 +7073,50 @@ document.getElementById('ctx-svg-delete').addEventListener('click', () => {
           </div>
 
   </body>
+
+
+  <!-- Modal Lienzo de Dibujo -->
+  <div id="draw-canvas-modal">
+    <div class="draw-box">
+      <div class="draw-toolbar">
+        <button class="draw-tool-btn active" id="draw-tool-pen" title="Lápiz (P)">✏ Lápiz</button>
+        <button class="draw-tool-btn" id="draw-tool-line" title="Línea recta (L)">╱ Línea</button>
+        <button class="draw-tool-btn" id="draw-tool-rect" title="Rectángulo (R)">▭ Rect</button>
+        <button class="draw-tool-btn" id="draw-tool-ellipse" title="Elipse (E)">◯ Elipse</button>
+        <button class="draw-tool-btn" id="draw-tool-arrow" title="Flecha (A)">→ Flecha</button>
+        <button class="draw-tool-btn" id="draw-tool-eraser" title="Borrador (X)">⌫ Borrar</button>
+        <div class="draw-sep"></div>
+        <span class="draw-size-label">Grosor:</span>
+        <input type="range" id="draw-size" min="1" max="30" value="3"
+          style="width:70px;accent-color:var(--gold);cursor:pointer">
+        <span id="draw-size-val"
+          style="font-family:'Cinzel',serif;font-size:9px;color:rgba(244,228,193,0.5);min-width:20px">3</span>
+        <div class="draw-sep"></div>
+        <span class="draw-size-label">Color:</span>
+        <input type="color" id="draw-color-pick" value="#2c1a0e"
+          style="width:28px;height:28px;border:2px solid rgba(160,120,70,0.5);border-radius:3px;cursor:pointer;background:none;padding:0">
+        <!-- Paleta rápida -->
+        <div class="draw-color-btn" style="background:#2c1a0e" data-color="#2c1a0e" title="Tinta oscura"></div>
+        <div class="draw-color-btn" style="background:#8b1a1a" data-color="#8b1a1a" title="Sangre"></div>
+        <div class="draw-color-btn" style="background:#1a3a5c" data-color="#1a3a5c" title="Arcano"></div>
+        <div class="draw-color-btn" style="background:#1a3a1a" data-color="#1a3a1a" title="Bosque"></div>
+        <div class="draw-color-btn" style="background:#c9a020" data-color="#c9a020" title="Dorado"></div>
+        <div class="draw-color-btn" style="background:#888" data-color="#888888" title="Gris"></div>
+        <div class="draw-color-btn" style="background:#fff;border-color:#aaa" data-color="#ffffff" title="Blanco"></div>
+        <div class="draw-sep"></div>
+        <button class="draw-tool-btn" id="draw-undo-btn" title="Deshacer (Ctrl+Z)">↩ Deshacer</button>
+        <button class="draw-tool-btn" id="draw-clear-btn" title="Limpiar lienzo">✕ Limpiar</button>
+        <button class="draw-tool-btn" id="draw-resize-btn" title="Cambiar tamaño del lienzo">⤢ Tamaño</button>
+        <button class="draw-tool-btn save-btn" id="draw-save-btn" title="Guardar como imagen en el nodo">💾
+          Guardar</button>
+        <button class="draw-tool-btn" id="draw-cancel-btn" style="margin-left:4px">✕ Cancelar</button>
+      </div>
+      <div class="draw-canvas-wrap" id="draw-canvas-wrap">
+        <canvas id="draw-main-canvas" width="800" height="500"></canvas>
+      </div>
+      <div class="draw-status" id="draw-status">Herramienta: Lápiz · Grosor: 3px · Click y arrastra para dibujar</div>
+    </div>
+  </div>
+
 
   </html>
