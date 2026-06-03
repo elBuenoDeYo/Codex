@@ -3635,6 +3635,10 @@
           if (state.selectedNodeId) {
             const prev = dom.canvasWorld.querySelector(`[data-id="${state.selectedNodeId}"]`);
             if (prev) prev.classList.remove('selected');
+
+            // Deseleccionar otros iconos
+            dom.canvasWorld.querySelectorAll('.canvas-svg-icon.selected')
+              .forEach(el => el.classList.remove('selected'));
           }
 
           state.selectedNodeId = id; state.selectedConnId = null;
@@ -6217,17 +6221,9 @@ _$ {
 
 
             // Puertos de conexión (igual que los nodos)
-            const ports = document.createElement('div');
-            ports.className = 'svg-icon-ports';
-            ['top', 'bottom', 'left', 'right'].forEach(side => {
-              const port = document.createElement('div');
-              port.className = `port ${side}`;
-              port.dataset.port = side;
-              ports.appendChild(port);
-            });
+            
 
             el.appendChild(body);
-            el.appendChild(ports);
 
             bindSvgIconEvents(el, iconData);
             dom.canvasWorld.appendChild(el);
