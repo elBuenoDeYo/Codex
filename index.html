@@ -132,13 +132,13 @@
 
 
       
-.node-body {
-  /* Textura de papel como fondo */
-  background: var(--paper-texture), linear-gradient(135deg, #f9f0d8 0%, #ede0b8 50%, #d4bc80 100%);
-  background-size: cover, cover;
-  background-blend-mode: multiply;
 
-  /* Máscara orgánica — recorta los bordes según mask1.png */
+
+.node-body {
+  /* Solo el gradiente de color, sin textura aquí */
+  background-image: var(--node-bg, linear-gradient(135deg, #f9f0d8 0%, #ede0b8 50%, #d4bc80 100%));
+  background-size: cover;
+
   -webkit-mask-image: var(--mask-node);
   mask-image: var(--mask-node);
   -webkit-mask-size: 100% 100%;
@@ -146,7 +146,6 @@
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 
-  /* Sin bordes ni sombras decorativas — minimalista */
   border: none;
   border-radius: 0;
   padding: 14px 16px;
@@ -159,11 +158,25 @@
   max-width: 600px;
 }
 
-/* Eliminar las líneas de pauta y el borde interior */
-.node-body::before,
+/* Textura como capa separada con opacidad controlable */
+.node-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--paper-texture);
+  background-size: cover;
+  opacity: 0.6;          /* ← ajusta este valor: 0.1 muy sutil, 0.3 más presente */
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+  display: block;         /* sobreescribe el display:none anterior */
+}
+
 .node-body::after {
   display: none;
 }
+
+
 
 
       
@@ -3225,7 +3238,7 @@
 
 
           el.innerHTML = `
-  <div class="node-body" style="background:${col.bg};border-color:${col.border}">
+ <div class="node-body" style="--node-bg:${col.bg}">
     <div class="node-corner tl">${CORNER_SVG}</div>
     <div class="node-corner tr">${CORNER_SVG}</div>
     <div class="node-corner bl">${CORNER_SVG}</div>
@@ -4377,7 +4390,7 @@
               const body = dom.canvasWorld.querySelector(`[data-id="${nodeId}"] .node-body`);
 
               if (body) {
-                body.style.background = col.bg; body.style.borderColor = col.border;
+                body.style.setProperty('--node-bg', col.bg);
               }
             });
             colorRow.appendChild(sw);
