@@ -3023,7 +3023,7 @@
               ctx.beginPath();
               ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
 
-              ctx.fillStyle = `rgba(244, 228, 193, $ {
+              ctx.fillStyle = `rgba(244, 228, 193, ${
                             s.a
                         })`;
               ctx.fill();
@@ -4587,7 +4587,7 @@
                 if (!nodeData.crosslinks.includes(n.id)) {
                   nodeData.crosslinks.push(n.id); onUpdate();
 
-                  notify(`⟿ Link cruzado añadido: $ {
+                  notify(`⟿ Link cruzado añadido: ${
                                     n.title
                                 }
 
@@ -5739,11 +5739,11 @@
 
             ;
 
-          const genEvId = () => `tl_ev_$ {
+          const genEvId = () => `tl_ev_${
     ++tl.idCounter
 }
 
-_$ {
+_${
     Date.now().toString(36)
 }
 
