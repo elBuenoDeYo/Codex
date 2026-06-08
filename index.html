@@ -75,11 +75,49 @@
         transition: opacity 0.8s ease;
       }
 
-      #canvas-world {
-        position: absolute;
-        transform-origin: 0 0;
-        will-change: transform;
-      }
+      
+
+/* ── NITIDEZ AL HACER ZOOM ── */
+#canvas-world {
+  position: absolute;
+  transform-origin: 0 0;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+#canvas-world * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#canvas-world img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.node-body {
+  /* añadir al final del bloque .node-body ya existente: */
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.canvas-float-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+}
+
+
 
       #svg-connections {
         position: absolute;
@@ -111,6 +149,7 @@
         transition: filter 0.2s, transform 0.15s;
         z-index: 10;
         overflow: visible;
+        transform: translateZ(0);
       }
 
       .node:active {
@@ -2674,13 +2713,18 @@
         filter: drop-shadow(0 0 10px rgba(201, 160, 32, 0.6));
       }
 
-      .canvas-float-img img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        pointer-events: none;
-      }
+      
+.canvas-float-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  /* AÑADIR: */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
 
 
 
