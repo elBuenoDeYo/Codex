@@ -117,72 +117,74 @@
         cursor: grabbing;
       }
 
-      
-.node.selected .node-body {
-  box-shadow: 0 0 0 0 transparent,
-              0 0 24px rgba(201, 160, 32, 0.55),
-              0 6px 20px rgba(0, 0, 0, 0.5);
-  filter: brightness(1.06);
-}
 
-.node.connecting-source .node-body {
-  box-shadow: 0 0 24px rgba(26, 58, 92, 0.7);
-  filter: brightness(1.08);
-}
+      .node.selected .node-body {
+        box-shadow: 0 0 0 0 transparent,
+          0 0 24px rgba(201, 160, 32, 0.55),
+          0 6px 20px rgba(0, 0, 0, 0.5);
+        filter: brightness(1.06);
+      }
 
-
-      
-
-
-.node-body {
-  /* Solo el gradiente de color, sin textura aquí */
-  background-image: var(--node-bg, linear-gradient(135deg, #f9f0d8 0%, #ede0b8 50%, #d4bc80 100%));
-  background-size: cover;
-
-  -webkit-mask-image: var(--mask-node);
-  mask-image: var(--mask-node);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-
-  border: none;
-  border-radius: 0;
-  padding: 14px 16px;
-  position: relative;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  resize: both;
-  min-width: 160px;
-  min-height: 80px;
-  max-width: 600px;
-}
-
-/* Textura como capa separada con opacidad controlable */
-.node-body::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--paper-texture);
-  background-size: cover;
-  opacity: 0.6;          /* ← ajusta este valor: 0.1 muy sutil, 0.3 más presente */
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  z-index: 0;
-  display: block;         /* sobreescribe el display:none anterior */
-}
-
-.node-body::after {
-  display: none;
-}
+      .node.connecting-source .node-body {
+        box-shadow: 0 0 24px rgba(26, 58, 92, 0.7);
+        filter: brightness(1.08);
+      }
 
 
 
 
-      
-.node-corner {
-  display: none;
-}
+
+      .node-body {
+        /* Solo el gradiente de color, sin textura aquí */
+        background-image: var(--node-bg, linear-gradient(135deg, #f9f0d8 0%, #ede0b8 50%, #d4bc80 100%));
+        background-size: cover;
+
+        -webkit-mask-image: var(--mask-node);
+        mask-image: var(--mask-node);
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+
+        border: none;
+        border-radius: 0;
+        padding: 14px 16px;
+        position: relative;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        resize: both;
+        min-width: 160px;
+        min-height: 80px;
+        max-width: 600px;
+      }
+
+      /* Textura como capa separada con opacidad controlable */
+      .node-body::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: var(--paper-texture);
+        background-size: cover;
+        opacity: 0.6;
+        /* ← ajusta este valor: 0.1 muy sutil, 0.3 más presente */
+        mix-blend-mode: multiply;
+        pointer-events: none;
+        z-index: 0;
+        display: block;
+        /* sobreescribe el display:none anterior */
+      }
+
+      .node-body::after {
+        display: none;
+      }
+
+
+
+
+
+      .node-corner {
+        display: none;
+      }
 
 
       .node-corner.tl {
@@ -213,18 +215,18 @@
         height: 16px;
       }
 
-      
-.node-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  padding-bottom: 5px;
-  /* Separador sutil sin borde duro */
-  border-bottom: 1px solid rgba(160, 120, 70, 0.25);
-  position: relative;
-  z-index: 1;
-}
+
+      .node-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 6px;
+        padding-bottom: 5px;
+        /* Separador sutil sin borde duro */
+        border-bottom: 1px solid rgba(160, 120, 70, 0.25);
+        position: relative;
+        z-index: 1;
+      }
 
 
       .node-icon {
@@ -327,76 +329,76 @@
         flex-wrap: wrap;
       }
 
-      
-.node-btn {
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  padding: 4px 9px;
-  font-weight: 700;
 
-  /* Textura papel en botones */
-  background: var(--paper-texture), rgba(244, 228, 193, 0.55);
-  background-size: cover;
-  background-blend-mode: multiply;
+      .node-btn {
+        font-family: 'Cinzel', serif;
+        font-size: 9px;
+        padding: 4px 9px;
+        font-weight: 700;
 
-  /* Máscara orgánica en botones */
-  -webkit-mask-image: var(--mask-node);
-  mask-image: var(--mask-node);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+        /* Textura papel en botones */
+        background: var(--paper-texture), rgba(244, 228, 193, 0.55);
+        background-size: cover;
+        background-blend-mode: multiply;
 
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: var(--ink-dark);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-}
+        /* Máscara orgánica en botones */
+        -webkit-mask-image: var(--mask-node);
+        mask-image: var(--mask-node);
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
 
-.node-btn:hover {
-  background: var(--paper-texture), rgba(201, 160, 32, 0.45);
-  background-size: cover;
-  background-blend-mode: multiply;
-  color: var(--ink-dark);
-  box-shadow: 0 3px 10px rgba(201, 160, 32, 0.3);
-  filter: brightness(1.05);
-}
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.15s;
+        color: var(--ink-dark);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      }
 
-.node-btn.enter-btn {
-  background: var(--paper-texture), rgba(139, 26, 26, 0.35);
-  background-size: cover;
-  background-blend-mode: multiply;
-  color: var(--blood-red);
-}
+      .node-btn:hover {
+        background: var(--paper-texture), rgba(201, 160, 32, 0.45);
+        background-size: cover;
+        background-blend-mode: multiply;
+        color: var(--ink-dark);
+        box-shadow: 0 3px 10px rgba(201, 160, 32, 0.3);
+        filter: brightness(1.05);
+      }
 
-.node-btn.enter-btn:hover {
-  background: var(--paper-texture), rgba(139, 26, 26, 0.55);
-  background-size: cover;
-  background-blend-mode: multiply;
-}
+      .node-btn.enter-btn {
+        background: var(--paper-texture), rgba(139, 26, 26, 0.35);
+        background-size: cover;
+        background-blend-mode: multiply;
+        color: var(--blood-red);
+      }
 
-.node-btn.connect-btn {
-  background: var(--paper-texture), rgba(26, 58, 92, 0.35);
-  background-size: cover;
-  background-blend-mode: multiply;
-  color: var(--arcane-blue);
-}
+      .node-btn.enter-btn:hover {
+        background: var(--paper-texture), rgba(139, 26, 26, 0.55);
+        background-size: cover;
+        background-blend-mode: multiply;
+      }
 
-.node-btn.connect-btn:hover {
-  background: var(--paper-texture), rgba(26, 58, 92, 0.55);
-  background-size: cover;
-  background-blend-mode: multiply;
-}
+      .node-btn.connect-btn {
+        background: var(--paper-texture), rgba(26, 58, 92, 0.35);
+        background-size: cover;
+        background-blend-mode: multiply;
+        color: var(--arcane-blue);
+      }
 
-.node-btn.delete-btn {
-  background: var(--paper-texture), rgba(80, 20, 20, 0.25);
-  background-size: cover;
-  background-blend-mode: multiply;
-  color: rgba(139, 26, 26, 0.8);
-  margin-left: auto;
-}
+      .node-btn.connect-btn:hover {
+        background: var(--paper-texture), rgba(26, 58, 92, 0.55);
+        background-size: cover;
+        background-blend-mode: multiply;
+      }
+
+      .node-btn.delete-btn {
+        background: var(--paper-texture), rgba(80, 20, 20, 0.25);
+        background-size: cover;
+        background-blend-mode: multiply;
+        color: rgba(139, 26, 26, 0.8);
+        margin-left: auto;
+      }
 
 
       .node-ports {
@@ -1400,32 +1402,32 @@
         display: flex;
       }
 
-      
-.details-box {
-  width: 90vw;
-  height: 88vh;
 
-  /* Textura papel como fondo del panel */
-  background: var(--paper-texture), linear-gradient(160deg, #1e1610 0%, #0e0a04 100%);
-  background-size: cover, cover;
-  background-blend-mode: soft-light;
+      .details-box {
+        width: 90vw;
+        height: 88vh;
 
-  border: none;
-  border-radius: 0;
+        /* Textura papel como fondo del panel */
+        background: var(--paper-texture), linear-gradient(160deg, #1e1610 0%, #0e0a04 100%);
+        background-size: cover, cover;
+        background-blend-mode: soft-light;
 
-  /* Máscara orgánica para el panel de detalles */
-  -webkit-mask-image: var(--mask-node);
-  mask-image: var(--mask-node);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+        border: none;
+        border-radius: 0;
 
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.85);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+        /* Máscara orgánica para el panel de detalles */
+        -webkit-mask-image: var(--mask-node);
+        mask-image: var(--mask-node);
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.85);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
 
       .details-header {
@@ -1481,29 +1483,29 @@
         scrollbar-color: rgba(160, 120, 70, 0.3) transparent;
       }
 
-      
-.details-textarea {
-  width: 100%;
-  flex: 1;
-  min-height: 300px;
-  background: rgba(244, 228, 193, 0.07);
-  border: none;
-  border-bottom: 1px solid rgba(160, 120, 70, 0.2);
-  border-radius: 0;
-  color: var(--parchment-light);
-  font-family: 'Crimson Text', serif;
-  font-size: 15px;
-  line-height: 1.7;
-  padding: 14px 16px;
-  resize: vertical;
-  box-sizing: border-box;
-  outline: none;
-  transition: background 0.2s;
-}
 
-.details-textarea:focus {
-  background: rgba(244, 228, 193, 0.1);
-}
+      .details-textarea {
+        width: 100%;
+        flex: 1;
+        min-height: 300px;
+        background: rgba(244, 228, 193, 0.07);
+        border: none;
+        border-bottom: 1px solid rgba(160, 120, 70, 0.2);
+        border-radius: 0;
+        color: var(--parchment-light);
+        font-family: 'Crimson Text', serif;
+        font-size: 15px;
+        line-height: 1.7;
+        padding: 14px 16px;
+        resize: vertical;
+        box-sizing: border-box;
+        outline: none;
+        transition: background 0.2s;
+      }
+
+      .details-textarea:focus {
+        background: rgba(244, 228, 193, 0.1);
+      }
 
 
       .details-textarea::placeholder {
@@ -2457,7 +2459,7 @@
         user-select: none;
         touch-action: none;
 
-        
+
       }
 
       .canvas-svg-icon:active {
@@ -2470,22 +2472,22 @@
         border-radius: 4px;
       }
 
-      
-.svg-icon-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 0;
 
-  /* Máscara orgánica para iconos SVG flotantes */
-  -webkit-mask-image: var(--mask-node);
-  mask-image: var(--mask-node);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-}
+      .svg-icon-body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        border-radius: 0;
+
+        /* Máscara orgánica para iconos SVG flotantes */
+        -webkit-mask-image: var(--mask-node);
+        mask-image: var(--mask-node);
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+      }
 
 
       .svg-icon-body svg {
@@ -2644,41 +2646,41 @@
 
 
       /* ── IMÁGENES FLOTANTES ── */
-      
-.canvas-float-img {
-  position: absolute;
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
 
-  /* Máscara orgánica para imágenes flotantes */
-  -webkit-mask-image: var(--mask-node);
-  mask-image: var(--mask-node);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+      .canvas-float-img {
+        position: absolute;
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
 
-  border: none;
-  border-radius: 0;
-  transition: filter 0.15s;
-}
+        /* Máscara orgánica para imágenes flotantes */
+        -webkit-mask-image: var(--mask-node);
+        mask-image: var(--mask-node);
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
 
-.canvas-float-img:active {
-  cursor: grabbing;
-}
+        border: none;
+        border-radius: 0;
+        transition: filter 0.15s;
+      }
 
-.canvas-float-img.selected {
-  filter: drop-shadow(0 0 10px rgba(201, 160, 32, 0.6));
-}
+      .canvas-float-img:active {
+        cursor: grabbing;
+      }
 
-.canvas-float-img img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-}
+      .canvas-float-img.selected {
+        filter: drop-shadow(0 0 10px rgba(201, 160, 32, 0.6));
+      }
+
+      .canvas-float-img img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+      }
 
 
 
@@ -3023,9 +3025,8 @@
               ctx.beginPath();
               ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
 
-              ctx.fillStyle = `rgba(244, 228, 193, ${
-                            s.a
-                        })`;
+              ctx.fillStyle = `rgba(244, 228, 193, ${s.a
+                })`;
               ctx.fill();
             });
             raf = requestAnimationFrame(draw);
@@ -3228,6 +3229,16 @@
 
           ;
 
+        const buildNodeIconHtml = (nodeData) => {
+          if (nodeData.svgIcon && nodeData.svgIcon.svgText) {
+            return nodeData.svgIcon.svgText.replace(
+              /<svg\b/,
+              '<svg style="width:18px;height:18px;fill:currentColor;color:var(--ink-dark);display:block;flex-shrink:0"'
+            );
+          }
+          return nodeData.icon || '📜';
+        };
+
         const createNodeEl = (nodeData) => {
           const el = document.createElement('div');
           el.className = 'node new-node';
@@ -3244,8 +3255,8 @@
     <div class="node-corner bl">${CORNER_SVG}</div>
     <div class="node-corner br">${CORNER_SVG}</div>
     <div class="node-type-badge">${nodeData.typeBadge || '— nodo —'}</div>
-    <div class="node-header">
-      <span class="node-icon">${nodeData.icon || '📜'}</span>
+    <div class="node-header">  
+    <span class="node-icon">${buildNodeIconHtml(nodeData)}</span>
       <textarea class="node-title" rows="1" spellcheck="false">${nodeData.title || 'Sin título'}</textarea>
     </div>
     <div class="node-desc-rendered" data-editing="false">${renderDescWithLinks(nodeData.desc || '')}</div>
@@ -4210,13 +4221,25 @@
 
           ;
 
-        const openConnectionModal = () => {
-          dom.connModal.classList.add('open');
-          document.getElementById('conn-label').value = '';
-          document.getElementById('conn-label').focus();
-        }
 
-          ;
+        const openConnectionModal = () => {
+          // Resetear todos los campos a defaults cuando es conexión nueva
+          if (!editingConnId) {
+            document.getElementById('conn-label').value = '';
+            document.getElementById('conn-style').value = 'dashed';
+            document.getElementById('conn-color').value = '#c9a96e';
+            document.getElementById('conn-dir').value = 'forward';
+            document.getElementById('conn-curve').value = '0';
+            document.getElementById('conn-curve-val').textContent = '0';
+            document.querySelector('#connection-modal .modal-title').textContent = '✦ Nueva Conexión ✦';
+            document.getElementById('conn-confirm').textContent = 'Crear Conexión';
+          }
+          dom.connModal.classList.add('open');
+          document.getElementById('conn-label').focus();
+        };
+
+
+        ;
 
         const createConnection = (opts) => {
           const level = currentLevel();
@@ -4320,26 +4343,17 @@
           svgIconBtn.className = 'panel-btn';
           svgIconBtn.textContent = '🎨 Elegir Icono SVG';
           svgIconBtn.style.marginTop = '8px';
+
           svgIconBtn.addEventListener('click', () => {
             SvgIcons.openModal('node-icon', (name, svgText) => {
-              // Guardar SVG en el nodo
               nodeData.svgIcon = { name, svgText };
-              nodeData.icon = ''; // limpiar emoji
-              // Actualizar el icono visible en el nodo
+              nodeData.icon = '';
               const iconEl = dom.canvasWorld.querySelector(`[data-id="${nodeId}"] .node-icon`);
-              if (iconEl) {
-                iconEl.innerHTML = svgText;
-                const svgEl = iconEl.querySelector('svg');
-                if (svgEl) {
-                  svgEl.style.width = '18px';
-                  svgEl.style.height = '18px';
-                  svgEl.style.fill = 'currentColor';
-                  svgEl.style.color = 'var(--ink-dark)';
-                }
-              }
+              if (iconEl) iconEl.innerHTML = buildNodeIconHtml(nodeData);
               autoSave();
             }, nodeId);
           });
+
           secIcon.appendChild(svgIconBtn);
 
 
@@ -4587,9 +4601,8 @@
                 if (!nodeData.crosslinks.includes(n.id)) {
                   nodeData.crosslinks.push(n.id); onUpdate();
 
-                  notify(`⟿ Link cruzado añadido: ${
-                                    n.title
-                                }
+                  notify(`⟿ Link cruzado añadido: ${n.title
+                    }
 
                                 `);
                 }
@@ -4689,6 +4702,9 @@
           const copy = { ...node };
           // Eliminar imágenes pesadas del autoguardado
           if (copy.detailImages) copy.detailImages = [];
+          if (copy.svgIcon && copy.svgIcon.svgText) {
+            copy.svgIcon = { name: copy.svgIcon.name }; // solo la referencia, sin el SVG completo
+          }
           if (copy.floatImages) {
             copy.floatImages = {};
             Object.entries(node.floatImages).forEach(([k, v]) => {
@@ -5739,13 +5755,11 @@
 
             ;
 
-          const genEvId = () => `tl_ev_${
-    ++tl.idCounter
-}
+          const genEvId = () => `tl_ev_${++tl.idCounter
+            }
 
-_${
-    Date.now().toString(36)
-}
+_${Date.now().toString(36)
+            }
 
 `;
 
