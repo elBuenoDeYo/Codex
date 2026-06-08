@@ -2924,6 +2924,80 @@
         const genId = () => `n_${++state.idCounter}_${Date.now().toString(36)}`;
 
 
+
+        // ── INDEXEDDB PARA IMÁGENES ──────────────────────────────────────────
+        const ImageDB = (() => {
+          const DB_NAME = 'codex-mundi-images';
+          const STORE = 'images';
+          const VERSION = 1;
+          let db = null;
+
+          const open = () => new Promise((resolve, reject) => {
+            if (db) { resolve(db); return; }
+            const req = indexedDB.open(DB_NAME, VERSION);
+            req.onupgradeneeded = (e) => {
+              e.target.result.createObjectStore(STORE);
+            };
+            req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+            req.onerror = (e) => reject(e.target.error);
+          });
+
+          const save = async (key, dataUrl) => {
+            const database = await open();
+            return new Promise((resolve, reject) => {
+              const tx = database.transaction(STORE, 'readwrite');
+              const store = tx.objectStore(STORE);
+              const req = store.put(dataUrl, key);
+              req.onsuccess = () => resolve();
+              req.onerror = (e) => reject(e.target.error);
+            });
+          };
+
+          const load = async (key) => {
+            const database = await open();
+            return new Promise((resolve, reject) => {
+              const tx = database.transaction(STORE, 'readonly');
+              const store = tx.objectStore(STORE);
+              const req = store.get(key);
+              req.onsuccess = (e) => resolve(e.target.result || null);
+              req.onerror = (e) => reject(e.target.error);
+            });
+          };
+
+          const remove = async (key) => {
+            const database = await open();
+            return new Promise((resolve, reject) => {
+              const tx = database.transaction(STORE, 'readwrite');
+              const store = tx.objectStore(STORE);
+              const req = store.delete(key);
+              req.onsuccess = () => resolve();
+              req.onerror = (e) => reject(e.target.error);
+            });
+          };
+
+          const removeAllForNode = async (nodeId) => {
+            const database = await open();
+            return new Promise((resolve, reject) => {
+              const tx = database.transaction(STORE, 'readwrite');
+              const store = tx.objectStore(STORE);
+              const req = store.openCursor();
+              req.onsuccess = (e) => {
+                const cursor = e.target.result;
+                if (cursor) {
+                  if (cursor.key.startsWith(`img_${nodeId}_`)) cursor.delete();
+                  cursor.continue();
+                } else {
+                  resolve();
+                }
+              };
+              req.onerror = (e) => reject(e.target.error);
+            });
+          };
+
+          return { save, load, remove, removeAllForNode };
+        })();
+
+
         const currentLevel = () => {
           let node = state.root;
 
@@ -4021,7 +4095,13 @@
           wrapper.id = `details-img-${idx}`;
 
           const img = document.createElement('img');
-          img.src = src; img.alt = '';
+          if (src.startsWith('idb:')) {
+            ImageDB.load(src.replace('idb:', ''))
+              .then(dataUrl => { if (dataUrl) img.src = dataUrl; });
+          } else {
+            img.src = src; // compatibilidad con archivos JSON antiguos
+          }
+          img.alt = '';
           // Cursor para indicar que es editable
           img.style.cursor = 'pointer';
           img.title = 'Clic para editar/dibujar encima';
@@ -4698,18 +4778,11 @@
           ;
 
 
+
         const stripImages = (node) => {
           const copy = { ...node };
-          // Eliminar imágenes pesadas del autoguardado
-          if (copy.detailImages) copy.detailImages = [];
           if (copy.svgIcon && copy.svgIcon.svgText) {
-            copy.svgIcon = { name: copy.svgIcon.name }; // solo la referencia, sin el SVG completo
-          }
-          if (copy.floatImages) {
-            copy.floatImages = {};
-            Object.entries(node.floatImages).forEach(([k, v]) => {
-              copy.floatImages[k] = { ...v, src: '' }; // guardar posición pero no imagen
-            });
+            copy.svgIcon = { name: copy.svgIcon.name };
           }
           if (copy.nodes) {
             copy.nodes = {};
@@ -5278,10 +5351,12 @@
             files.forEach(file => {
               const reader = new FileReader();
 
-              reader.onload = (ev) => {
-                node.detailImages.push(ev.target.result);
+              reader.onload = async (ev) => {
+                const imgKey = `img_${detailsNodeId}_${node.detailImages.length}`;
+                await ImageDB.save(imgKey, ev.target.result);
+                node.detailImages.push(`idb:${imgKey}`);
                 const grid = document.getElementById('details-img-grid');
-                if (grid) grid.appendChild(makeImgWrapper(ev.target.result, node.detailImages.length - 1));
+                if (grid) grid.appendChild(makeImgWrapper(`idb:${imgKey}`, node.detailImages.length - 1));
               }
 
                 ;
@@ -7038,6 +7113,7 @@ _${Date.now().toString(36)
             dc.snapshot = null;
           };
 
+
           const open = (nodeId, editIdx = null) => {
             dc.targetNodeId = nodeId;
             dc.editImgIdx = editIdx;
@@ -7046,20 +7122,31 @@ _${Date.now().toString(36)
             const c = canvas();
             const cx = ctx();
 
-            // Si editamos una imagen existente, cargarla
             if (editIdx !== null) {
               const level = currentLevel();
               const node = level.nodes[nodeId];
               if (node && node.detailImages && node.detailImages[editIdx]) {
-                const img = new Image();
-                img.onload = () => {
-                  c.width = img.naturalWidth || 800;
-                  c.height = img.naturalHeight || 500;
-                  cx.fillStyle = '#ffffff';
-                  cx.fillRect(0, 0, c.width, c.height);
-                  cx.drawImage(img, 0, 0);
+                const src = node.detailImages[editIdx];
+                const loadIntoCanvas = (dataUrl) => {
+                  const img = new Image();
+                  img.onload = () => {
+                    c.width = img.naturalWidth || 800;
+                    c.height = img.naturalHeight || 500;
+                    cx.fillStyle = '#ffffff';
+                    cx.fillRect(0, 0, c.width, c.height);
+                    cx.drawImage(img, 0, 0);
+                  };
+                  img.src = dataUrl;
                 };
-                img.src = node.detailImages[editIdx];
+
+                // ← NUEVO: resolver referencia idb: antes de cargar
+                if (src.startsWith('idb:')) {
+                  ImageDB.load(src.replace('idb:', '')).then(dataUrl => {
+                    if (dataUrl) loadIntoCanvas(dataUrl);
+                  });
+                } else {
+                  loadIntoCanvas(src); // compatibilidad con Base64 directo
+                }
               }
             } else {
               c.width = 800;
@@ -7073,7 +7160,9 @@ _${Date.now().toString(36)
             modal().classList.add('open');
           };
 
-          const save = () => {
+
+
+          const save = async () => {
             const level = currentLevel();
             const node = level.nodes[dc.targetNodeId];
             if (!node) { close(); return; }
@@ -7082,24 +7171,32 @@ _${Date.now().toString(36)
             const dataUrl = canvas().toDataURL('image/png');
 
             if (dc.editImgIdx !== null && dc.editImgIdx < node.detailImages.length) {
-              // Reemplazar imagen existente
-              node.detailImages[dc.editImgIdx] = dataUrl;
+              // Reutilizar la misma clave idb: si ya existe, o crear una nueva
+              const existingSrc = node.detailImages[dc.editImgIdx];
+              let imgKey;
+              if (existingSrc.startsWith('idb:')) {
+                imgKey = existingSrc.replace('idb:', ''); // reutilizar clave existente
+              } else {
+                imgKey = `img_${dc.targetNodeId}_edit_${dc.editImgIdx}_${Date.now().toString(36)}`;
+              }
+              await ImageDB.save(imgKey, dataUrl);
+              node.detailImages[dc.editImgIdx] = `idb:${imgKey}`; // ← siempre referencia IDB
               notify('🖌 Dibujo actualizado');
             } else {
-              // Añadir nueva
-              node.detailImages.push(dataUrl);
+              const imgKey = `img_${dc.targetNodeId}_${node.detailImages.length}`;
+              await ImageDB.save(imgKey, dataUrl);
+              node.detailImages.push(`idb:${imgKey}`);
               notify('🖌 Dibujo guardado como imagen');
             }
 
-            // Refrescar grid de imágenes si el modal de detalles está abierto
             const grid = document.getElementById('details-img-grid');
             if (grid) {
               grid.innerHTML = '';
               node.detailImages.forEach((src, i) => grid.appendChild(makeImgWrapper(src, i)));
             }
-
             close();
           };
+
 
           const close = () => {
             modal().classList.remove('open');
@@ -7196,32 +7293,36 @@ _${Date.now().toString(36)
 
 
         // ── IMÁGENES FLOTANTES ──────────────────────────────────────────
+
         const FloatImages = (() => {
           let selectedId = null;
-
           const genFiId = () => `fi_${++state.idCounter}_${Date.now().toString(36)}`;
-
-          // z-index: 'back'=2, 'front'=20 (nodos están en z-index:10)
           const Z = { back: 2, front: 20 };
 
-          const create = (src, x, y) => {
+          // ── CREAR → guardar en IDB ──
+          const create = async (rawSrc, x, y) => {
             const level = currentLevel();
             if (!level.floatImages) level.floatImages = {};
             const id = genFiId();
-            level.floatImages[id] = { id, src, x, y, w: 200, h: 150, layer: 'front' };
+
+            const imgKey = `fi_${id}`;
+            await ImageDB.save(imgKey, rawSrc);
+
+            level.floatImages[id] = { id, src: `idb:${imgKey}`, x, y, w: 200, h: 150, layer: 'front' };
             renderOne(level.floatImages[id]);
             autoSave();
             notify('🖼 Imagen añadida');
           };
 
+          // ── RENDERIZAR → resolver idb: ──
           const renderOne = (data) => {
             const el = document.createElement('div');
             el.className = 'canvas-float-img';
             el.dataset.fiId = data.id;
             el.style.left = data.x + 'px';
             el.style.top = data.y + 'px';
-            el.style.width = data.w + 'px';
-            el.style.height = data.h + 'px';
+            el.style.width = (data.w || 200) + 'px';
+            el.style.height = (data.h || 150) + 'px';
             el.style.zIndex = Z[data.layer] || Z.front;
             el.style.resize = 'both';
             el.style.overflow = 'hidden';
@@ -7229,13 +7330,19 @@ _${Date.now().toString(36)
             el.style.minHeight = '40px';
 
             const img = document.createElement('img');
-            img.src = data.src;
+
+            // ← CLAVE: resolver referencia idb: o Base64 directo (compatibilidad)
+            if (data.src && data.src.startsWith('idb:')) {
+              ImageDB.load(data.src.replace('idb:', ''))
+                .then(dataUrl => { if (dataUrl) img.src = dataUrl; });
+            } else if (data.src && data.src.length > 0) {
+              img.src = data.src; // compatibilidad con JSON antiguo con Base64 directo
+            }
+
             el.appendChild(img);
 
-            // Drag
             el.addEventListener('mousedown', (e) => {
               if (e.button !== 0) return;
-              // Ignorar zona resize (esquina inf-der)
               const rect = el.getBoundingClientRect();
               if (e.clientX >= rect.right - 16 && e.clientY >= rect.bottom - 16) return;
               e.preventDefault(); e.stopPropagation();
@@ -7248,14 +7355,12 @@ _${Date.now().toString(36)
               };
             });
 
-            // Guardar tamaño al soltar resize
             const ro = new ResizeObserver(() => {
               data.w = el.offsetWidth;
               data.h = el.offsetHeight;
             });
             ro.observe(el);
 
-            // Menú contextual
             el.addEventListener('contextmenu', (e) => {
               e.preventDefault(); e.stopPropagation();
               select(data.id);
@@ -7268,7 +7373,6 @@ _${Date.now().toString(36)
               document.getElementById('ctx-float-img-options').style.display = 'block';
               menu.classList.add('open');
             });
-
 
             dom.canvasWorld.appendChild(el);
           };
@@ -7301,7 +7405,14 @@ _${Date.now().toString(36)
 
           const remove = (id) => {
             const level = currentLevel();
-            if (level.floatImages) delete level.floatImages[id];
+            if (level.floatImages) {
+              // Limpiar también de IDB al eliminar
+              const data = level.floatImages[id];
+              if (data && data.src && data.src.startsWith('idb:')) {
+                ImageDB.remove(data.src.replace('idb:', ''));
+              }
+              delete level.floatImages[id];
+            }
             const el = dom.canvasWorld.querySelector(`[data-fi-id="${id}"]`);
             if (el) el.remove();
             state.selectedFloatImgId = null;
@@ -7310,7 +7421,6 @@ _${Date.now().toString(36)
           };
 
           const initEvents = () => {
-            // Botón menú contextual canvas
             document.getElementById('ctx-add-float-img').addEventListener('click', () => {
               document.getElementById('float-img-input').click();
             });
@@ -7320,6 +7430,7 @@ _${Date.now().toString(36)
               if (!file) return;
               const reader = new FileReader();
               reader.onload = (ev) => {
+                // create() es async pero no necesitamos await aquí
                 create(ev.target.result, state.contextMenuPos.x - 100, state.contextMenuPos.y - 75);
               };
               reader.readAsDataURL(file);
@@ -7339,6 +7450,7 @@ _${Date.now().toString(36)
 
           return { renderAll, initEvents };
         })();
+
 
 
         return {
